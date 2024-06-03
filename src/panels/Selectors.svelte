@@ -1,0 +1,1 @@
+<grapes-selectors class="block" />
