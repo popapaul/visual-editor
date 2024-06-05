@@ -1,7 +1,7 @@
 import type { Editor } from 'grapesjs';
 import tailwindConfig from '$root/tailwind.www.config';
 
-import styleApp from "$root/src/routes/(www)/[[culture=culture]]/app.css?raw"
+import styleApp from "$root/src/routes/(www)/app.css?raw"
 
 export default (editor) => {
 	const options = {

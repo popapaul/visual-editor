@@ -21,13 +21,16 @@
 	import type { Writable } from 'svelte/store';
 	import type { Component, Editor } from 'grapesjs';
 
+	type RichTextEditor = typeof $editor.RichTextEditor.globalRte;
 	const editor = getContext<Writable<Editor>>('editor');
 	let active = false;
 	let toolbar;
-	let rte;
+	let component: Component;
+	let rte: RichTextEditor;
 	const colors = persisted('editor-colors', []);
 
-	const onSelect = async (component: Component, rteInst) => {
+	const onSelect = async (selected: Component, rteInst) => {
+		component = selected;
 		rte = rteInst;
 		await tick();
 		active = true;
@@ -38,35 +41,41 @@
 	const onDeselect = () => {
 		active = false;
 	};
-
+	$editor.on('component:select', async (selected: Component) => {
+		if (!selected?.attributes?.editable) return;
+		//component = selected;
+		//	$editor.RichTextEditor.enable(selected.view, $editor.RichTextEditor.globalRte);
+	});
 	$editor.on('rte:enable', onSelect);
 	$editor.on('rte:disable', onDeselect);
 	$editor.on('component:deselected', onDeselect);
 
+	$: console.log(component);
 	const queryCommand = (command: string) => {
 		const doc = $editor.Canvas.getDocument() as Document;
 		return doc.queryCommandSupported(command) && doc.queryCommandState(command);
 	};
 
-	const isValidTag = (rte, tagName = 'A') => {
+	const isValidTag = (rte: RichTextEditor, tagName = 'A') => {
 		const { anchorNode, focusNode } = rte.selection();
+
 		const parentAnchor = anchorNode?.parentNode;
 		const parentFocus = focusNode?.parentNode;
 		return parentAnchor?.nodeName == tagName || parentFocus?.nodeName == tagName;
 	};
 
-	const toggleLink = (rte) => {
+	const toggleLink = (rte: RichTextEditor) => {
 		if (isValidTag(rte)) {
 			rte.exec('unlink');
 		} else {
-			rte.insertHTML(`<a href="" data-selectme>${rte.selection()}</a>`, {
+			rte.insertHTML(`<a href="">${rte.selection()}</a>`, {
 				select: true
 			});
 		}
 	};
-	const toggleSpan = (rte) => {
+	const toggleSpan = (rte: RichTextEditor) => {
 		!isValidTag(rte, 'SPAN') &&
-			rte.insertHTML(`<span data-selectme>${rte.selection()}</span>`, {
+			rte.insertHTML(`<span>${rte.selection()}</span>`, {
 				select: true
 			});
 	};
@@ -139,22 +148,18 @@
 		}
 	];
 
-	const isFullSelection = (rte) => {
+	const isFullSelection = (rte: RichTextEditor) => {
 		const selection: Selection = rte.selection();
 		const text = selection.toString();
-		const result = text.length == selection.anchorNode.textContent.trim().length;
+
+		const result =
+			text.length == selection.anchorNode.textContent.trim().length || text.length == 0;
 		return result;
 	};
-	const getParentComponent = (selection: Selection) => {
-		const element = selection.anchorNode.parentElement;
 
-		return $editor.getWrapper().find('#' + element.id)?.[0];
-	};
-	const changeFontSize = (rte, font) => {
-		const selection: Selection = rte.selection();
+	const changeFontSize = (rte: RichTextEditor, font) => {
 		if (isFullSelection(rte)) {
-			const selected = getParentComponent(selection);
-			selected.setStyle({ 'font-size': font.size, 'line-height': font.height });
+			component.setStyle({ 'font-size': font.size, 'line-height': font.height });
 		} else {
 			rte.insertHTML(
 				`<span style="font-size:${font.size};line-height:${
@@ -177,19 +182,20 @@
 			.join('')}`;
 
 	const activeFont = () => {
+		console.log(rte.selection());
 		const node = rte.selection().baseNode.parentElement;
 		const size = parseFloat(getComputedStyle(node)['font-size']) * 0.0625 + 'rem';
 		return size;
 	};
 
 	const getStyles = () => {
+		console.log(rte.selection());
 		const node = rte.selection().baseNode.parentElement;
 		return getComputedStyle(node);
 	};
 	const changeColor = (style, color) => {
 		if (isFullSelection(rte)) {
-			const selected = getParentComponent(rte.selection());
-			selected.setStyle({ [style]: color });
+			component.setStyle({ [style]: color });
 		} else {
 			rte.insertHTML(`<span style="${style}:${color}">${rte.selection()}</span>`);
 		}
@@ -201,14 +207,16 @@
 		use:portal={'.gjs-rte-toolbar'}
 		transition:fade={{ duration: 200 }}
 		bind:this={toolbar}
-		class="z-[2] flex bg-blue-600">
+		class="z-[2] flex bg-blue-600"
+	>
 		<Button
 			depressed
 			fab
 			size="x-small"
 			class="!bg-transparent !text-white"
 			active={queryCommand('bold')}
-			on:click={() => $editor.Canvas.getDocument().execCommand('bold')}>
+			on:click={() => $editor.Canvas.getDocument().execCommand('bold')}
+		>
 			<strong class="text-base">B</strong>
 		</Button>
 		<Button
@@ -217,7 +225,8 @@
 			size="x-small"
 			class="!bg-transparent !text-white"
 			active={queryCommand('italic')}
-			on:click={() => $editor.Canvas.getDocument().execCommand('italic')}>
+			on:click={() => $editor.Canvas.getDocument().execCommand('italic')}
+		>
 			<i class="text-base">I</i>
 		</Button>
 		<Button
@@ -226,7 +235,8 @@
 			size="x-small"
 			class="!bg-transparent !text-white"
 			active={queryCommand('underline')}
-			on:click={() => $editor.Canvas.getDocument().execCommand('underline')}>
+			on:click={() => $editor.Canvas.getDocument().execCommand('underline')}
+		>
 			<u class="text-base">U</u>
 		</Button>
 		<Button
@@ -235,7 +245,8 @@
 			size="x-small"
 			class="!bg-transparent !text-white"
 			active={queryCommand('strikeThrough')}
-			on:click={() => $editor.Canvas.getDocument().execCommand('strikeThrough')}>
+			on:click={() => $editor.Canvas.getDocument().execCommand('strikeThrough')}
+		>
 			<strike class="text-base">S</strike>
 		</Button>
 		<Button
@@ -244,7 +255,8 @@
 			size="x-small"
 			class="!bg-transparent !text-white"
 			active={rte.selection() && isValidTag(rte)}
-			on:click={() => toggleLink(rte)}>
+			on:click={() => toggleLink(rte)}
+		>
 			<Icon size="18" path={Link} />
 		</Button>
 		<Button
@@ -253,7 +265,8 @@
 			size="x-small"
 			class="!bg-transparent !text-white"
 			active={rte.selection() && isValidTag(rte, 'SPAN')}
-			on:click={() => toggleSpan(rte)}>
+			on:click={() => toggleSpan(rte)}
+		>
 			<Icon size="18" path={Brush} />
 		</Button>
 		<Menu active={active && false}>
@@ -266,7 +279,8 @@
 					{@const currentSize = activeFont()}
 					{#each fonts as font}
 						<ListItem active={currentSize == font.size} on:click={() => changeFontSize(rte, font)}
-							>{font.name}</ListItem>
+							>{font.name}</ListItem
+						>
 					{/each}
 				</List>
 			</span>
@@ -283,7 +297,8 @@
 				<ColorPicker
 					value={color}
 					bind:colors={$colors}
-					on:change={({ detail }) => changeColor('color', detail.hex)} />
+					on:change={({ detail }) => changeColor('color', detail.hex)}
+				/>
 			</span>
 		</Menu>
 
@@ -298,7 +313,8 @@
 				<ColorPicker
 					value={color}
 					bind:colors={$colors}
-					on:change={({ detail }) => changeColor('background-color', detail.hex)} />
+					on:change={({ detail }) => changeColor('background-color', detail.hex)}
+				/>
 			</span>
 		</Menu>
 	</span>

@@ -6,15 +6,12 @@
     "peerDependencies": {
         "@paulpopa/icons": "^0.0.31",
         "@paulpopa/svelte-material": "workspace:0.0.0",
+        "@paulpopa/codemirror": "workspace:0.0.0",
         "svelte": "^4.0.0"
     },
     "devDependencies": {
-        "dom-serializer": "^2.0.0",
-        "domhandler": "^5.0.3",
         "html-parse-stringify": "^3.0.1",
         "grapesjs-parser-postcss": "1.0.3",
-        "html-dom-parser": "^5.0.6",
-        "htmlparser2": "9.0.0",
         "grapesjs": "^0.21.10",
         "grapesjs-blocks-basic": "^1.0.2"
     },

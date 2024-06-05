@@ -8,15 +8,17 @@
 		ExpansionPanels,
 		Icon
 	} from '@paulpopa/svelte-material';
+	import { client } from '$client/trpc';
 	import { Apps, Close, Edit } from '@paulpopa/icons/md/filled';
 	import { getContext } from 'svelte';
 	import type { Writable } from 'svelte/store';
 	import type { Block, Editor } from 'grapesjs';
+	import type { LocalizedTemplates } from '$server';
 
 	const editor = getContext<Writable<Editor>>('editor');
 	export let culture: string;
 
-	let templates = [];
+	let templates: LocalizedTemplates[] = [];
 
 	let editTemplate;
 	let blockDictionary: { [Key: string]: Block[] } = {};
@@ -50,7 +52,19 @@
 		}, {});
 	});
 
+	$: templates.forEach((template) => {
+		$editor.BlockManager.remove(template.id);
+
+		$editor.BlockManager.add(template.id, {
+			label: template.title,
+			content: template.content,
+			category: template.category,
+			media: template.template.image
+		});
+	});
+
 	const setBlocks = async () => {
+		templates = await client.templates.findTemplates.query({ culture });
 		setTimeout(() => $editor.render(), 100);
 	};
 
@@ -87,7 +101,8 @@
 								depressed
 								size="x-small"
 								href="/backend/editor/{culture}/{template.id}"
-								class="block-remove absolute right-0 top-0 text-white opacity-0 transition-opacity">
+								class="block-remove absolute right-0 top-0 text-white opacity-0 transition-opacity"
+							>
 								<Icon path={Edit} />
 							</Button>
 						{/if}
@@ -97,7 +112,8 @@
 							on:dragstart={() => dragStart(block)}
 							on:dragend={() => dragStop(block)}
 							title={block.getLabel()}
-							draggable="true">
+							draggable="true"
+						>
 							<div class="gjs-block__media">
 								{@html block.getMedia() || Apps}
 							</div>
