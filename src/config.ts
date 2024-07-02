@@ -56,7 +56,7 @@ const config: EditorConfig = {
 	avoidInlineStyle: true,
 	showDevices: false,
 	plugins: [
-		blocksBasic,
+		//blocksBasic,
 		...Object.values(components),
 		ObjectPosition,
 		parserPostCSS,
@@ -64,7 +64,7 @@ const config: EditorConfig = {
 	],
 	pluginsOpts: {
 		blocksBasic: {
-			blocks: ['image', 'video', 'map'],
+			blocks: ['image', 'map'],
 			flexGrid: true
 		}
 	},

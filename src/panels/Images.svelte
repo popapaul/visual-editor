@@ -32,5 +32,5 @@
 </script>
 
 {#if type}
-	<FilePicker {type} bind:active on:change={changeImage} />
+	<FilePicker path={[type]} bind:active on:change={changeImage} />
 {/if}

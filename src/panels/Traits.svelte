@@ -80,7 +80,8 @@
 			{#each categories as category, index}
 				<ExpansionPanel>
 					<span slot="header"
-						>{capitalize(category || component.attributes?.type || 'Options')}</span>
+						>{capitalize(category || component.attributes?.type || 'Options')}</span
+					>
 					<div class="mt-2 w-full">
 						{#each traits.filter((trait) => trait.attributes?.attributes?.category == category) as trait}
 							{@const {
@@ -100,8 +101,10 @@
 									{hint}
 									type="number"
 									value={attributes[name]}
-									on:change={(event) => handleChange(name, event.target.value, component, trait)}>
-									{capitalize(label || name)}</TextField>
+									on:change={(event) => handleChange(name, event.target.value, component, trait)}
+								>
+									{capitalize(label || name)}</TextField
+								>
 							{/if}
 
 							{#if type == 'checkbox'}
@@ -112,33 +115,39 @@
 											? valueTrue == attributes[name]
 											: true
 										: false}
-									on:change={(event) =>
-										handleBoolean(name, event.target.checked, component, trait)}>
-									{capitalize(label || name)}</Checkbox>
+									on:change={(event) => handleBoolean(name, event.target.checked, component, trait)}
+								>
+									{capitalize(label || name)}</Checkbox
+								>
 							{/if}
 
 							{#if type == 'text'}
 								<TextField
 									{hint}
 									value={attributes[name]}
-									on:change={(event) => handleChange(name, event.target.value, component, trait)}>
-									{capitalize(label || name)}</TextField>
+									on:change={(event) => handleChange(name, event.target.value, component, trait)}
+								>
+									{capitalize(label || name)}</TextField
+								>
 							{/if}
 
 							{#if type == 'image'}
 								<TextField
 									{hint}
 									value={attributes[name]}
-									on:change={(event) => handleChange(name, event.target.value, component, trait)}>
+									on:change={(event) => handleChange(name, event.target.value, component, trait)}
+								>
 									<FilePicker
 										type="images"
 										on:change={({ detail }) => handleChange(name, '' + detail, component, trait)}
-										slot="append-outer">
+										slot="append-outer"
+									>
 										<Button size="small" fab depressed>
 											<Icon path={Image} />
 										</Button>
 									</FilePicker>
-									{capitalize(label || name)}</TextField>
+									{capitalize(label || name)}</TextField
+								>
 							{/if}
 
 							{#if type == 'select'}
@@ -154,8 +163,11 @@
 									<Button
 										depressed
 										fab
+										class="!bg-transparent"
+										size="x-small"
 										slot="append-outer"
-										on:click={() => handleChange(name, '', component, trait)}>
+										on:click={() => handleChange(name, '', component, trait)}
+									>
 										<Icon path={Close} />
 									</Button>
 								</Select>
@@ -192,7 +204,8 @@
 										depressed
 										fab
 										slot="append-outer"
-										on:click={() => handleChange(name, '', component, trait)}>
+										on:click={() => handleChange(name, '', component, trait)}
+									>
 										<Icon path={Close} />
 									</Button>
 								</SelectFriendlyUrl>
@@ -205,7 +218,8 @@
 								component.remove();
 								selected = null;
 								$editor.selectRemove(selected);
-							}}>
+							}}
+						>
 							<Icon class="mr-2" path={Delete} />
 							{$LL['Remove ' + component.attributes.type] || 'Remove ' + component.attributes.type}
 						</Button>
