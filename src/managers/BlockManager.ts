@@ -1,22 +1,19 @@
+import { Paragraph } from "@paulpopa/icons/fa/solid";
+import { Image, Title } from "@paulpopa/icons/md/outlined";
+
 const blocks = [
 	{
 		id: "text",
-		label: 'Paragraph',
+		label: 'Text',
+		media: Title,
 		category: 'Basic',
 		activate: true,
-		content: "<p> </p>",
-	},
-	{
-		id: "heading",
-		label: 'Header',
-		category: 'Basic',
-		activate: true,
-		content: `<h1 class="text-2xl mb-4"> </h1>`,
+		content: `<p class="px-2"> </p>`,
 	},
 	{
 		id: 'image',
 		label: 'Image',
-		media: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 512"><path d="M249.6 392.3l-104 112c-9.094 9.781-26.09 9.781-35.19 0l-103.1-112c-6.484-6.984-8.219-17.17-4.406-25.92S14.45 352 24 352H80V160H24C14.45 160 5.812 154.3 1.999 145.6C-1.813 136.8-.0781 126.7 6.406 119.7l104-112c9.094-9.781 26.09-9.781 35.19 0l104 112c6.484 6.984 8.219 17.17 4.406 25.92C250.2 154.3 241.5 160 232 160H176v192h56c9.547 0 18.19 5.656 22 14.41S256.1 385.3 249.6 392.3z"></path></svg>`,
+		media: Image,
 		category: 'Basic',
 		activate: true,
 		select: true,
@@ -43,7 +40,7 @@ const blocks = [
 		id: "container",
 		label: 'Container',
 		category: 'Layout',
-		content: '<div class="container mx-auto p-5 px-10 sm:px-5"></div>',
+		content: '<div class="container"></div>',
 	},
 	{
 		id: "spacer",

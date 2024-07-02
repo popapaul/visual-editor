@@ -5,13 +5,15 @@ function CleanWordHTML(str: string) {
 
 	const doc = parser.parseFromString(str, "text/html");
 	const body = doc.querySelector("body");
-
+	
 	body.querySelectorAll("*").forEach((element: HTMLElement) => {
 		element.className = "";
 		element.removeAttribute("lang");
 		const style = element.style;
 		if (style.textAlign)
 			element.classList.add(`text-${style.textAlign}`);
+		if (style.marginLeft)
+			element.classList.add(`ml-[${style.marginLeft}]`);
 		if (style.background)
 			element.classList.add(`bg-[${style.background.replaceAll(" ", "")}]`);
 		if (style.backgroundColor)
@@ -60,16 +62,17 @@ export default (editor: Editor) => {
 					paste: 'onPaste',
 				};
 			},
+
 			onPaste: (e: ClipboardEvent) => {
 				const target = e.target as HTMLElement;
 				e.preventDefault();
 				e.stopPropagation();
 
 				const text = CleanWordHTML(e.clipboardData.getData('text/html'));
-				const component = editor.getWrapper().find(`#${target.id}`)?.[0];
-				if (component)
-					component.replaceWith(text)
-				//target.ownerDocument.execCommand('insertHTML', false, text);
+				//const component = editor.getWrapper().find(`#${target.id}`)?.[0];
+				// if (component)
+				// 	component.replaceWith(text)
+				target.ownerDocument.execCommand('insertHTML', false, text);
 			}
 		},
 	});

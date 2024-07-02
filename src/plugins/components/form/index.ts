@@ -30,7 +30,7 @@ const getTextarea = (name: string, label: string, klass = '') => `
 	</div>
 `;
 
-export default (editor: Editor, opt = {}) => {
+export const formInputs = (editor: Editor, opt = {}) => {
 	form(editor);
 	input(editor);
 	textarea(editor);

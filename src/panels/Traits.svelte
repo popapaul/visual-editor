@@ -101,7 +101,7 @@
 									{hint}
 									type="number"
 									value={attributes[name]}
-									on:change={(event) => handleChange(name, event.target.value, component, trait)}
+									on:input={(event) => handleChange(name, event.target.value, component, trait)}
 								>
 									{capitalize(label || name)}</TextField
 								>
@@ -138,7 +138,7 @@
 									on:change={(event) => handleChange(name, event.target.value, component, trait)}
 								>
 									<FilePicker
-										type="images"
+										path={['images']}
 										on:change={({ detail }) => handleChange(name, '' + detail, component, trait)}
 										slot="append-outer"
 									>

@@ -78,20 +78,25 @@ export default (editor: Editor) => {
 const renderVideo = (component: Component) => {
 	const { src = '', poster = '', provider } = component.attributes.attributes;
 
+	const placeholder = `<svg viewBox="0 0 24 24" style="width:100%; color:white;height:100%;padding:10%;background:rgba(140,140,140,1)"> 
+        <path fill="currentColor" d="M10,15L15.19,12L10,9V15M21.56,7.17C21.69,7.64 21.78,8.27 21.84,9.07C21.91,9.87 21.94,10.56 21.94,11.16L22,12C22,14.19 21.84,15.8 21.56,16.83C21.31,17.73 20.73,18.31 19.83,18.56C19.36,18.69 18.5,18.78 17.18,18.84C15.88,18.91 14.69,18.94 13.59,18.94L12,19C7.81,19 5.2,18.84 4.17,18.56C3.27,18.31 2.69,17.73 2.44,16.83C2.31,16.36 2.22,15.73 2.16,14.93C2.09,14.13 2.06,13.44 2.06,12.84L2,12C2,9.81 2.16,8.2 2.44,7.17C2.69,6.27 3.27,5.69 4.17,5.44C4.64,5.31 5.5,5.22 6.82,5.16C8.12,5.09 9.31,5.06 10.41,5.06L12,5C16.19,5 18.8,5.16 19.83,5.44C20.73,5.69 21.31,6.27 21.56,7.17Z"></path>
+      </svg>`;
 
 	switch (provider) {
 		case 'yt':
-			component.view.el.innerHTML = `<iframe src="https://www.youtube.com/embed/${getYouTubeVideoID(src)}" style="width:100%;height:100%;background-image:url(${poster});background-repeat:no-repeat; background-size:cover;"></iframe>`
+			const videoId = getYouTubeVideoID(src);
+
+			component.view.el.innerHTML = !videoId ? placeholder : `<iframe src="https://www.youtube.com/embed/${getYouTubeVideoID(src)}" style="width:100%;height:100%;background-image:url('${poster}');background-repeat:no-repeat; background-size:cover;"></iframe>`
 			break;
 
 		default:
-			component.view.el.innerHTML = `<video src="${src}" poster="${poster}" style="width:100%;height:100%;"/>`
+			component.view.el.innerHTML = `<video src="${src}" style="width:100%;height:100%;background-image:url('${poster}');background-repeat:no-repeat; background-size:cover;"/>`
 
 			getVideoThumbnail(component);
 			break;
 	}
 	if (!src && !poster)
-		component.view.el.innerHTML = `<svg style="width:100%; height:100%;padding:10%;background:rgba(140,140,140,1)" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" class="gjs-no-pointer"><path d="M64 0C28.7 0 0 28.7 0 64V448c0 35.3 28.7 64 64 64H320c35.3 0 64-28.7 64-64V160H256c-17.7 0-32-14.3-32-32V0H64zM256 0V128H384L256 0zM64 288c0-17.7 14.3-32 32-32h96c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32H96c-17.7 0-32-14.3-32-32V288zM300.9 397.9L256 368V304l44.9-29.9c2-1.3 4.4-2.1 6.8-2.1c6.8 0 12.3 5.5 12.3 12.3V387.7c0 6.8-5.5 12.3-12.3 12.3c-2.4 0-4.8-.7-6.8-2.1z"></path></svg>`;
+		component.view.el.innerHTML = placeholder;
 
 	component.view.el.firstElementChild?.classList.add('gjs-no-pointer');
 };

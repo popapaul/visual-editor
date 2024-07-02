@@ -56,18 +56,13 @@ const config: EditorConfig = {
 	avoidInlineStyle: true,
 	showDevices: false,
 	plugins: [
-		//blocksBasic,
+		(editor) => blocksBasic(editor, { blocks: ['column1', 'column2', 'column3', 'column3-7', 'image'], flexGrid: true }),
 		...Object.values(components),
 		ObjectPosition,
 		parserPostCSS,
 		tailwind
 	],
-	pluginsOpts: {
-		blocksBasic: {
-			blocks: ['image', 'map'],
-			flexGrid: true
-		}
-	},
+
 	canvas: {
 		scripts: ['https://cdn.tailwindcss.com/']
 	},
