@@ -30,6 +30,9 @@ const config: EditorConfig = {
 	body{
 		padding-bottom:60px;
 	}
+		*:empty{
+		min-height:50px;
+		}
 	p:empty:before {
 		content: ' ';
 		white-space: pre;

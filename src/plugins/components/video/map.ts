@@ -40,6 +40,9 @@ export default (editor: Editor) => {
 					},
 				]
 			},
+			getInnerHTML(opts) {
+				return innerHTML(this);
+			},
 			init() {
 				this.listenTo(this, 'change:attributes:address change:attributes:zoom change:attributes:type', renderMap);
 			}
@@ -53,13 +56,14 @@ export default (editor: Editor) => {
 		}
 	});
 };
+const innerHTML = (component: Component) => {
+	const { type = 'roadmap', zoom = 10, address } = component.attributes.attributes;
+	return `<iframe src="https://maps.google.com/maps?z=${zoom}&t=${type}&q=${address}&output=embed" style="width:100%;height:100%;"></iframe>`;
+}
 
 const renderMap = (component: Component) => {
-	console.log(component)
-	const { type = 'roadmap', zoom = 10, address } = component.attributes.attributes;
-
-	component.view!.el.innerHTML = `<iframe src="https://maps.google.com/maps?z=${zoom}&t=${type}&q=${address}&output=embed" style="width:100%;height:100%;"></iframe>`
-
+	component.view!.el.innerHTML = innerHTML(component);
 	component.view!.el.firstElementChild?.classList.add('gjs-no-pointer');
 };
+
 
