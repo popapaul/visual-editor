@@ -28,7 +28,7 @@ const setSizes = (model: Component, editor: Editor, device) => {
 	}, 400);
 };
 
-export default (editor: Editor) => {
+export const image = (editor: Editor) => {
 	editor.DomComponents.removeType('image');
 	editor.DomComponents.addType('image', {
 		isComponent: (el) => el.tagName === 'IMG',

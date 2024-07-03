@@ -59,7 +59,7 @@ const config: EditorConfig = {
 	avoidInlineStyle: true,
 	showDevices: false,
 	plugins: [
-		(editor) => blocksBasic(editor, { blocks: ['column1', 'column2', 'column3', 'column3-7', 'image'], flexGrid: true }),
+		(editor) => blocksBasic(editor, { blocks: ['column1', 'column2', 'column3', 'column3-7',], flexGrid: true }),
 		...Object.values(components),
 		ObjectPosition,
 		parserPostCSS,
