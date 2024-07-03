@@ -19,28 +19,23 @@ export default (editor: Editor) => {
 				droppable: false,
 				traits: [
 					{
-						type: 'text',
-						label: 'Title',
-						name: 'alt'
-					},
-					{
-						label: 'Poster',
+						label: 'Imagine',
 						type: 'image',
 						name: 'poster'
 					},
 					{
 						type: 'text',
-						label: 'Src',
+						label: 'Link',
 						name: 'src'
 					},
 					{
 						type: 'select',
-						label: 'Provider',
+						label: 'Tip',
 						name: 'provider',
 						options: [
 							{
 								id: "so",
-								name: 'HTML5 Source',
+								name: 'Nativ',
 								value: 'so'
 							},
 							{
@@ -53,7 +48,7 @@ export default (editor: Editor) => {
 				]
 			},
 			getInnerHTML(opts) {
-			
+
 				return innerHTML(this);
 			},
 			init() {
@@ -72,8 +67,8 @@ export default (editor: Editor) => {
 			},
 			onActive() {
 				const { provider } = this.model.attributes.attributes;
-				if (provider == 'yt')
-					editor.Commands.run('open-assets', { type: 'images', attribute: 'poster' });
+				if (provider == 'yt') { }
+				//editor.Commands.run('open-assets', { type: 'images', attribute: 'poster' });
 				else editor.Commands.run('open-assets', { type: 'videos', attribute: 'src' });
 			}
 		}
@@ -97,7 +92,9 @@ const innerHTML = (component: Component) => {
 
 			return !videoId ? placeholder : `<iframe src="https://www.youtube.com/embed/${getYouTubeVideoID(src)}" style="width:100%;height:100%;background-image:url('${poster}');background-repeat:no-repeat; background-size:cover;"></iframe>`
 		default:
-			return `<video src="${src}" style="width:100%;height:100%;background-image:url('${poster}');background-repeat:no-repeat; background-size:cover;"/>`
+			return `<video controls style="width:100%;height:100%;background-image:url('${poster}');background-repeat:no-repeat; background-size:cover;">
+				 <source src="${src}"  />
+			</video>`
 	}
 }
 

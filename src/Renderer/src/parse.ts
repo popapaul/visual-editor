@@ -3,6 +3,7 @@ import type { ComponentType } from "svelte";
 import parser from "./parser";
 import stringify from "./parser/stringify";
 import type { IDoc, IOptions } from "./parser/types";
+import { components } from "../../components";
 
 export const isTag = (node: IDoc) => {
 	return node.type == "tag"
@@ -14,13 +15,14 @@ export const isText = (node: IDoc) => {
 
 export type ProcessNode = (node: IDoc) =>
 	{
-		component: string;
+		component?: string;
 
 		/**
 		 * Props that will be passed to `component`.
 		 */
 		props?: Promise<Record<string, any>>;
 
+		attrs?: Record<string, string>;
 		/**
 		 * If `true`, children of `node` will not be processed and no `default`
 		 * slot is rendered for the `component`.
@@ -56,10 +58,32 @@ type Options = { /**
 	noHtmlNodes?: boolean;
 } & IOptions
 
-const defaultOptions: Omit<Options, 'processNode'> = {
-	components: []
-};
 
+
+
+export const processNode: ProcessNode = (node) => {
+	const breakpoints = [350, 500, 800, 1200, 1400, 1800];
+	if (node.name == "img") {
+		const src = encodeURI(node.attrs.src);
+		const size = parseInt(node.attrs.size) || 100;
+		const quality = node.attrs.quality || "100";
+		return {
+			attrs: {
+				srcset: breakpoints.map((breakpoint) => `${src}?${new URLSearchParams({ format: "webp", width: (breakpoint * size / 100).toString(), quality }).toString()} ${breakpoint}w`).join(',')
+			}
+		}
+
+	}
+	if (components.has(node.name))
+		return {
+			component: node.name
+		}
+}
+
+const defaultOptions: Options = {
+	components: [],
+	processNode
+};
 
 export const parse = async (html: string, options?: Options) => {
 	const ast = parser.parse(html, options);
@@ -76,6 +100,9 @@ export type Component = {
 	component: string,
 	props: Promise<Record<string, any>>
 }
+
+
+
 const transform = (domNodes: IDoc[], options: Options
 ) => {
 
@@ -85,9 +112,8 @@ const transform = (domNodes: IDoc[], options: Options
 	for (const domNode of domNodes) {
 		let processResult: ReturnType<ProcessNode> = undefined;
 
-		if (isText(domNode)) {
-			processResult = options.processNode?.(domNode);
-		} else if (isTag(domNode) && !options.filterTags?.includes(domNode.name!)) {
+
+		if (isTag(domNode) && !options.filterTags?.includes(domNode.name!)) {
 
 			// Filter `node.attribs` before processing node
 			//domNode.attrs = getFilteredAttributes(domNode, options).attributes;
@@ -99,14 +125,15 @@ const transform = (domNodes: IDoc[], options: Options
 			continue;
 		}
 
-		if (typeof processResult == "object" && processResult?.component) {
+		if (typeof processResult == "object" && processResult.component) {
 			components.push({ component: processResult.component, props: processResult.props });
+
 			const node: IDoc = ({
 				type: 'component',
 				component: processResult.component,
 			});
 
-			if (domNode.attrs) node.attrs = domNode.attrs;
+			if (domNode.attrs) node.attrs = { ...domNode.attrs, ...processResult.attrs };
 
 
 			if (
@@ -149,6 +176,9 @@ const transform = (domNodes: IDoc[], options: Options
 				options,
 			);
 			if (hasAttributes) node.attrs = attributes;
+			if (typeof processResult == "object" && processResult.attrs)
+				Object.assign(node.attrs, processResult.attrs)
+
 
 			let hasChildComponents;
 			if (domNode.children?.length) {

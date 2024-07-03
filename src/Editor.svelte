@@ -39,18 +39,19 @@
 		}
 		$editor.runCommand('tailwind');
 		$editor.on('change:changesCount', deboucedUpdate);
-	
+		$editor.on('component:selected', () => ($rightDrawer = 1));
 	});
 	setContext('editor', editor);
 
 	const updateContent = () => {
 		const css = 'style';
-		const currentContent = `<${css}>${$editor.getCss()}</${css}>${$editor.DomComponents.getWrapper().getInnerHTML()}`;
-		content = currentContent;
+		content = `<${css}>${$editor.getCss({ onlyMatched: true })}</${css}>${$editor.DomComponents.getWrapper().getInnerHTML()}`;
 	};
-	const deboucedUpdate = debounce(updateContent, 300);
+	const deboucedUpdate = debounce(updateContent, 700);
 
-	export const setContent = () => {
+	export const updateEditor = (content: string) => {
+		deboucedUpdate.clear();
+		$editor.off('change:changesCount', deboucedUpdate);
 		if (content?.includes('tailwind')) {
 			const template = document.createElement('template');
 			template.innerHTML = content;
@@ -60,10 +61,10 @@
 			content = template.innerHTML;
 		}
 		$editor.setComponents(content);
+		setTimeout(() => $editor.on('change:changesCount', deboucedUpdate), 200);
 	};
 
-	$: $editor && culture && setContent();
-	
+	$: $editor && updateEditor(content);
 </script>
 
 <div class="editor overflow-hidden">
@@ -77,7 +78,8 @@
 			mini={!$rightDrawer}
 			miniWidth="0"
 			right
-			active={$rightDrawer > 0}>
+			active={$rightDrawer > 0}
+		>
 			<div class="flex flex-col" class:hidden={$rightDrawer != 1}>
 				<Selectors />
 				<Traits />

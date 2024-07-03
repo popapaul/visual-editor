@@ -50,7 +50,6 @@
 	$editor.on('rte:disable', onDeselect);
 	$editor.on('component:deselected', onDeselect);
 
-	$: console.log(component);
 	const queryCommand = (command: string) => {
 		const doc = $editor.Canvas.getDocument() as Document;
 		return doc.queryCommandSupported(command) && doc.queryCommandState(command);
