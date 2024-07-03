@@ -51,7 +51,7 @@
 	$: active && getCode();
 </script>
 
-<Dialog class="h-full" width="95vw" height="90vh" bind:active>
+<Dialog class="h-full overflow-hidden" width="95vw" height="90vh" bind:active>
 	<slot slot="activator" />
 	<Card shaped class="!grid h-full flex-col" style="grid-template-rows:auto 1fr;">
 		<div class="relative flex justify-between px-4 pt-3">
@@ -66,7 +66,7 @@
 				<Icon path={Close} />
 			</Button>
 		</div>
-		<CardText class="editor-grid flex w-full grow gap-4 overflow-auto !pb-0">
+		<CardText class=" flex w-full grow gap-4 overflow-auto !pb-0">
 			{#if $panels.includes('html')}
 				<div class="mb-5 flex grow basis-0 flex-col overflow-hidden">
 					<span class="mb-1">HTML</span>
