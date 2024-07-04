@@ -1,16 +1,19 @@
-import type { SvelteComponent } from "svelte";
-import type { IDoc } from "./Renderer/src/parser/types";
-import type { ProcessNode } from "./Renderer/src/parse";
-
-type Name = `${string}-${string}`;
+import type { ComponentType } from "svelte";
+import type { ComponentDefinition } from "grapesjs";
 
 type Loader = (event: { event?: any, fetch?: typeof window.fetch, culture: string, attributes: Record<string, string> }) => Promise<Record<string, any>>
 
 type Component = {
-    name: `${string}-${string}`;
-    props: [];
-    component: () => Promise<SvelteComponent>,
+    tag: `${string}-${string}`;
+    name: string;
+    category?: string;
+    loader?: Loader,
+    definition?: ComponentDefinition,
+    component: () => Promise<ComponentType>,
 }
 
-export const components = new Map<string, () => Promise<any>>();
-export const loaders = new Map<string, Loader>();
+export const components = new Map<string, Component>();
+
+export const registerComponent = (comp: Component) => {
+    components.set(comp.tag, comp);
+};

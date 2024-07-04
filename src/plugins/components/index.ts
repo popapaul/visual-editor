@@ -9,5 +9,4 @@ export * from './flexbox';
 export * from './gallery';
 export * from './list';
 export * from './form';
-
-export { default as register } from './svelte-component/register';
+export * from './svelte-component';

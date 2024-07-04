@@ -58,31 +58,8 @@ type Options = { /**
 	noHtmlNodes?: boolean;
 } & IOptions
 
-
-
-
-export const processNode: ProcessNode = (node) => {
-	const breakpoints = [350, 500, 800, 1200, 1400, 1800];
-	if (node.name == "img") {
-		const src = encodeURI(node.attrs.src);
-		const size = parseInt(node.attrs.size) || 100;
-		const quality = node.attrs.quality || "100";
-		return {
-			attrs: {
-				srcset: breakpoints.map((breakpoint) => `${src}?${new URLSearchParams({ format: "webp", width: (breakpoint * size / 100).toString(), quality }).toString()} ${breakpoint}w`).join(',')
-			}
-		}
-
-	}
-	if (components.has(node.name))
-		return {
-			component: node.name
-		}
-}
-
 const defaultOptions: Options = {
 	components: [],
-	processNode
 };
 
 export const parse = async (html: string, options?: Options) => {

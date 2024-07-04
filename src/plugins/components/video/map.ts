@@ -50,7 +50,7 @@ export default (editor: Editor) => {
 
 		view: {
 			onRender({ model }) {
-				console.log(model)
+
 				setTimeout(() => renderMap(model), 100);
 			},
 		}

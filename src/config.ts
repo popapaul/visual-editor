@@ -28,9 +28,9 @@ const config: EditorConfig = {
       outline: 1px dashed rgba(170,170,170,0.7);
     }
 	body{
-		padding-bottom:60px;
+		padding-bottom:20px;
 	}
-		*:empty{
+		[data-gjs-type="wrapper"] *:empty{
 		min-height:50px;
 		}
 	p:empty:before {

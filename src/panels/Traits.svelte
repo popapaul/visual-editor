@@ -49,7 +49,7 @@
 		if (!component) return;
 		const attrs = component.getAttributes();
 		if (value === true) {
-			component.addAttributes({ [name]: value });
+			component.addAttributes({ [name]: value.toString() });
 			attrs[name] = value;
 			return;
 		}

@@ -16,9 +16,7 @@
 	}[] = [];
 
 	const getComponent = (node: IDoc) => {
-		const ceva = components.splice(0, 1)?.[0];
-
-		return ceva;
+		return components.splice(0, 1)?.[0];
 	};
 </script>
 

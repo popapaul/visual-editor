@@ -24,6 +24,9 @@
 	let GrapesRef: HTMLElement;
 	export let content: string = '';
 	export let culture: string = 'ro';
+	let innerUpdate = false;	
+	const setInnerUpdateFlag = (value:boolean)=>innerUpdate = value;
+	const deboucedUpdateFlag = debounce(setInnerUpdateFlag, 700);
 
 	onMount(async () => {
 		if (browser) {
@@ -45,13 +48,16 @@
 
 	const updateContent = () => {
 		const css = 'style';
+		innerUpdate = true;
+
 		content = `<${css}>${$editor.getCss({ onlyMatched: true })}</${css}>${$editor.DomComponents.getWrapper().getInnerHTML()}`;
+		setTimeout(()=>deboucedUpdateFlag(false),150);
 	};
+	
 	const deboucedUpdate = debounce(updateContent, 700);
 
 	export const updateEditor = (content: string) => {
-		deboucedUpdate.clear();
-		$editor.off('change:changesCount', deboucedUpdate);
+		if(innerUpdate) return;
 		if (content?.includes('tailwind')) {
 			const template = document.createElement('template');
 			template.innerHTML = content;
@@ -61,7 +67,7 @@
 			content = template.innerHTML;
 		}
 		$editor.setComponents(content);
-		setTimeout(() => $editor.on('change:changesCount', deboucedUpdate), 200);
+	
 	};
 
 	$: $editor && updateEditor(content);
@@ -80,10 +86,13 @@
 			right
 			active={$rightDrawer > 0}
 		>
-			<div class="flex flex-col" class:hidden={$rightDrawer != 1}>
+
+			<div class="flex flex-col h-0" class:hidden={$rightDrawer != 1}>
+				
 				<Selectors />
 				<Traits />
 				<Styles />
+			
 			</div>
 			<div class="flex flex-col h-0" class:hidden={$rightDrawer != 2}>
 				<Blocks {culture} />
