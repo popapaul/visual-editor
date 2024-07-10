@@ -6,6 +6,7 @@
 		ExpansionPanels,
 		Icon,
 		Select,
+		Textarea,
 		TextField
 	} from '@paulpopa/svelte-material';
 	import { Close, Delete, Image } from '@paulpopa/icons/md/filled';
@@ -21,10 +22,16 @@
 		return string.charAt(0).toUpperCase() + string.slice(1);
 	}
 
-	let selected: Component;
+	let components: Component[] = [];
 
 	const onSelect = (model: Component) => {
-		selected = model;
+		components = model
+			? [
+					model,
+					model.closestType('link'),
+					...getParents(model).filter((x) => x.attributes.persistable)
+				]
+			: [];
 	};
 
 	const getParents = (target: Component, list: Component[] = []): Component[] => {
@@ -33,203 +40,146 @@
 		return list;
 	};
 
-	const handleChange = (name: string, value, component: Component, trait: Trait) => {
+	const handleChange = (name: string, value: any, component: Component) => {
 		if (!component) return;
 
-		const attrs = trait.attributes.changeProp ? component.attributes : component.getAttributes();
-		if (attrs[name] == value) return;
-
-		if (trait.attributes.changeProp) component.set(name, value);
+		if (value === false) component.removeAttributes([name]);
 		else component.addAttributes({ [name]: value });
 
-		component[name] = value?.toString?.();
+		const index = components.findIndex((x) => x == component);
+		if (index >= 0) components[index].attributes.attributes[name] = value;
 	};
 
-	const handleBoolean = (name: string, value, component: Component, trait: Trait) => {
-		if (!component) return;
-		const attrs = component.getAttributes();
-		if (value === true) {
-			component.addAttributes({ [name]: value.toString() });
-			attrs[name] = value;
-			return;
-		}
-		if (value === false) {
-			component.removeAttributes([name]);
-			return;
-		}
-		handleChange(name, value, component, trait);
-	};
 	$editor.on('component:selected', onSelect);
-	$editor.on('component:deselected', (selected = null));
+	$editor.on('component:deselected', () => (components = []));
 </script>
 
-{#key selected}
-	{#if selected}
-		{@const components = [
-			selected,
-			selected.closestType('link'),
-			...getParents(selected).filter((x) => x.attributes.persistable)
-		]}
+{#each components.filter((x) => x) as component, index}
+	{@const traits = component.getTraits()}
+	{@const categories = [...new Set(traits.map((trait) => trait.attributes?.attributes?.category))]}
 
-		{#each components.filter((x) => x) as component, index}
-			{@const traits = component.getTraits()}
-			{@const categories = [
-				...new Set(traits.map((trait) => trait.attributes?.attributes?.category))
-			]}
-
-			<ExpansionPanels accordion multiple value={[0]}>
-				{#each categories as category, index}
-					<ExpansionPanel active value={index}>
-						<span slot="header"
-							>{capitalize(category || component.attributes?.type || 'Options')}</span
-						>
-						<div class="mt-2 w-full">
-							{#each traits.filter((trait) => trait.attributes?.attributes?.category == category) as trait}
-								{@const {
-									name,
-									type,
-									options,
-									valueFalse,
-									valueTrue,
-									text: description,
-									label,
-									changeProp
-								} = trait.attributes}
-								{@const hint = $LL[description]() || description || ''}
-								{@const attributes = changeProp ? component.attributes : component.getAttributes()}
-								{#if type == 'number'}
-									<TextField
-										{hint}
-										type="number"
-										value={attributes[name]}
-										on:input={(event) => handleChange(name, event.target.value, component, trait)}
-									>
-										{capitalize(label || name)}</TextField
-									>
-								{/if}
-
-								{#if type == 'checkbox'}
-									<Checkbox
-										class="mt-3"
-										checked={typeof attributes[name] !== 'undefined'
-											? attributes[name].length > 0
-												? valueTrue == attributes[name]
-												: true
-											: false}
-										on:change={(event) =>
-											handleBoolean(name, event.target.checked, component, trait)}
-									>
-										{capitalize(label || name)}</Checkbox
-									>
-								{/if}
-
-								{#if type == 'text'}
-									<TextField
-										{hint}
-										value={attributes[name]}
-										on:change={(event) => handleChange(name, event.target.value, component, trait)}
-									>
-										{capitalize(label || name)}</TextField
-									>
-								{/if}
-
-								{#if type == 'image'}
-									<TextField
-										{hint}
-										value={attributes[name]}
-										on:change={(event) => handleChange(name, event.target.value, component, trait)}
-									>
-										<FilePicker
-											path={['images']}
-											on:change={({ detail }) => handleChange(name, '' + detail, component, trait)}
-											slot="append-outer"
-										>
-											<Button size="small" fab depressed>
-												<Icon path={Image} />
-											</Button>
-										</FilePicker>
-										{capitalize(label || name)}</TextField
-									>
-								{/if}
-
-								{#if type == 'select'}
-									<Select
-										{hint}
-										value={attributes[name] ?? trait.attributes.default}
-										on:change={({ detail }) => handleChange(name, detail, component, trait)}
-										items={options.map((x) => ({
-											name: (x?.label ?? x?.name ?? x?.value ?? x) || 'Not set',
-											value: x?.value ?? x
-										}))}
-										>{capitalize(label || name)}
-										<Button
-											depressed
-											fab
-											class="!bg-transparent"
-											size="x-small"
-											slot="append-outer"
-											on:click={() => handleChange(name, '', component, trait)}
-										>
-											<Icon path={Close} />
-										</Button>
-									</Select>
-								{/if}
-
-								{#if type == 'selectTarget'}
-									<Select
-										{hint}
-										class="mt-2 w-full"
-										value={attributes[name] ?? '_self'}
-										mandatory
-										on:change={({ detail }) => handleChange(name, detail, component, trait)}
-										items={[
-											{ name: 'New Window', value: '_blank' },
-											{ name: 'Same Window', value: '_self' }
-										]}
-										>{capitalize(label || name)}
-									</Select>
-								{/if}
-
-								{#if type == 'selectFriendlyUrl'}
-									<SelectFriendlyUrl
-										{hint}
-										class="mt-2 w-full"
-										pageId={attributes['pageid']}
-										value={attributes[name]}
-										on:change={({ detail }) => handleChange(name, detail, component, trait)}
-										items={options.map((x) => ({
-											name: (x?.label ?? x?.name ?? x?.value ?? x) || 'Not set',
-											value: x?.value ?? x
-										}))}
-										>{capitalize(label || name)}
-										<Button
-											depressed
-											fab
-											slot="append-outer"
-											on:click={() => handleChange(name, '', component, trait)}
-										>
-											<Icon path={Close} />
-										</Button>
-									</SelectFriendlyUrl>
-								{/if}
-							{/each}
-							<Button
-								depressed
-								class="mt-2 w-full"
-								on:click={() => {
-									component.remove();
-									selected = null;
-									$editor.selectRemove(selected);
-								}}
+	<ExpansionPanels accordion multiple value={[0]}>
+		{#each categories as category, index}
+			<ExpansionPanel active value={index}>
+				<span slot="header">{capitalize(category || component.attributes?.type || 'Options')}</span>
+				<div class="mt-2 w-full">
+					{#each traits.filter((trait) => trait.attributes?.attributes?.category == category) as trait}
+						{@const {
+							name,
+							type,
+							options,
+							attributes: metadata,
+							text: description,
+							label
+						} = trait.attributes}
+						{@const hint = $LL[description]() || description || ''}
+						{@const value = component?.attributes?.attributes?.[name]}
+						{#if type == 'number'}
+							<TextField
+								{hint}
+								type="number"
+								{value}
+								on:input={(event) => handleChange(name, event.target.value, component)}
 							>
-								<Icon class="mr-2" path={Delete} />
-								{$LL['Remove ' + component.attributes.type] ||
-									'Remove ' + component.attributes.type}
-							</Button>
-						</div>
-					</ExpansionPanel>
-				{/each}
-			</ExpansionPanels>
+								{capitalize(label || name)}</TextField
+							>
+						{/if}
+
+						{#if type == 'checkbox' || type == 'boolean'}
+							<Checkbox
+								class="mt-3"
+								checked={Boolean(value)}
+								on:change={(event) =>
+									handleChange(name, event.target.checked ? 'true' : false, component)}
+							>
+								{capitalize(label || name)}</Checkbox
+							>
+						{/if}
+
+						{#if type == 'text'}
+							<TextField
+								{hint}
+								{value}
+								on:change={(event) => handleChange(name, event.target.value, component)}
+							>
+								{capitalize(label || name)}</TextField
+							>
+						{/if}
+
+						{#if type == 'textarea'}
+							<Textarea
+								{hint}
+								{value}
+								on:change={(event) => handleChange(name, event.target.value, component)}
+							>
+								{capitalize(label || name)}</Textarea
+							>
+						{/if}
+
+						{#if type == 'image' || type == 'file'}
+							<div class="flex gap-2 items-center">
+								<TextField
+									{hint}
+									{value}
+									on:input={(event) => handleChange(name, event.target.value, component)}
+								>
+									{capitalize(label || name)}</TextField
+								>
+								<FilePicker
+									accept={metadata.accept}
+									path={metadata?.path ?? ['images']}
+									on:change={({ detail }) => handleChange(name, detail, component)}
+								>
+									<Button size="x-small" fab depressed slot="activator">
+										<Icon class="!w-5 !h-5" path={Image} />
+									</Button>
+								</FilePicker>
+							</div>
+						{/if}
+
+						{#if type == 'select'}
+							<Select
+								{hint}
+								value={component.attributes.attributes[name] ?? trait.attributes.default}
+								on:change={({ detail }) => handleChange(name, detail, component)}
+								items={options.map((x) => ({
+									name: (x?.label ?? x?.name ?? x?.value ?? x) || 'Not set',
+									value: x?.value ?? x
+								}))}
+								>{capitalize(label || name)}
+								<Button
+									depressed
+									fab
+									class="!bg-transparent"
+									size="x-small"
+									slot="append-outer"
+									on:click={() => handleChange(name, '', component)}
+								>
+									<Icon path={Close} />
+								</Button>
+							</Select>
+						{/if}
+
+						{#if type == 'url'}
+							<SelectFriendlyUrl
+								{hint}
+								class="mt-2 w-full"
+								{value}
+								on:change={({ detail }) => handleChange(name, detail, component)}
+								>{capitalize(label || name)}
+								<Button
+									depressed
+									fab
+									slot="append-outer"
+									on:click={() => handleChange(name, '', component)}
+								>
+									<Icon path={Close} />
+								</Button>
+							</SelectFriendlyUrl>
+						{/if}
+					{/each}
+				</div>
+			</ExpansionPanel>
 		{/each}
-	{/if}
-{/key}
+	</ExpansionPanels>
+{/each}

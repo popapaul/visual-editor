@@ -9,7 +9,7 @@
 		Button,
 		Tooltip
 	} from '@paulpopa/svelte-material';
-	import {  FileCode } from '@paulpopa/icons/fa/regular';
+	import { FileCode } from '@paulpopa/icons/fa/regular';
 
 	import { Brush, Apps, CheckBoxOutlineBlank } from '@paulpopa/icons/md/filled';
 	import { getContext } from 'svelte';
@@ -20,22 +20,20 @@
 	import { devices } from '../managers/DeviceManager';
 	import { Fullscreen, Layers } from '@paulpopa/icons/md/outlined';
 
-	const leftDrawer = persisted('leftDrawer', 1);
-	const rightDrawer = persisted('rightDrawer', 1);
+	const panels = persisted('editor-panels', { left: [], right: [] });
 
 	const editor = getContext<Writable<Editor>>('editor');
 
 	let outline = persisted('editor-outline', true);
-	let fullscreen =false;
+	let fullscreen = false;
 
-	const handleFullScreen =()=>{
+	const handleFullScreen = () => {
 		fullscreen = !fullscreen;
 		const container = $editor.getContainer().parentElement;
-		
-		if(fullscreen)
-			return container.requestFullscreen();
+
+		if (fullscreen) return container.requestFullscreen();
 		document.exitFullscreen();
-	}
+	};
 
 	const toggleOutline = (outline) => {
 		const canvas = $editor.getWrapper();
@@ -48,11 +46,12 @@
 
 	$: toggleOutline($outline);
 </script>
-<svelte:document on:fullscreenchange={()=>!document.fullscreenElement && (fullscreen = false)} />
+
+<svelte:document on:fullscreenchange={() => !document.fullscreenElement && (fullscreen = false)} />
 
 <AppBar style="grid-area:toolbar">
-	<ButtonGroup borderless activeClass="primary-color" bind:value={$leftDrawer}>
-		<ButtonGroupItem value={2}>
+	<ButtonGroup borderless activeClass="primary-color" bind:value={$panels.left}>
+		<ButtonGroupItem value="layers" on:click>
 			<Tooltip>
 				<Icon path={Layers} />
 				<span slot="tip">{$LL.cms.Layers()}</span>
@@ -88,32 +87,33 @@
 		</Tooltip>
 	</PageCode>
 
-
 	<div style="flex-grow:1" />
 
 	<div class="flex gap-2">
 		<Tooltip>
 			<Button
-			fab
-			size="small"
+				fab
+				size="small"
 				active={$outline}
 				depressed
 				activeClass="primary-color"
 				class="mx-1"
-				on:click={() => ($outline = !$outline)}>
+				on:click={() => ($outline = !$outline)}
+			>
 				<Icon path={CheckBoxOutlineBlank} />
 			</Button>
 			<span slot="tip">Toggle Outline</span>
 		</Tooltip>
 		<Tooltip>
 			<Button
-			fab
-			size="small"
+				fab
+				size="small"
 				active={fullscreen}
 				depressed
 				activeClass="primary-color"
 				class="mx-1"
-				on:click={handleFullScreen}>
+				on:click={handleFullScreen}
+			>
 				<Icon path={Fullscreen} />
 			</Button>
 			<span slot="tip">Fullscreen</span>
@@ -121,16 +121,16 @@
 	</div>
 	<div style="flex-grow:1" />
 
-	<ButtonGroup borderless activeClass="primary-color" bind:value={$rightDrawer}>
+	<ButtonGroup borderless activeClass="primary-color" bind:value={$panels.right}>
 		<Tooltip>
-			<ButtonGroupItem value={1}>
+			<ButtonGroupItem value="styles">
 				<Icon path={Brush} />
 			</ButtonGroupItem>
 			<span slot="tip">{$LL.cms.Styles()}</span>
 		</Tooltip>
 
 		<Tooltip>
-			<ButtonGroupItem value={2}>
+			<ButtonGroupItem value="blocks">
 				<Icon path={Apps} />
 			</ButtonGroupItem>
 			<span slot="tip">{$LL.cms.Blocks()}</span>

@@ -64,8 +64,7 @@
 	});
 
 	const setBlocks = async () => {
-		templates = [] // await client.templates.findTemplates.query({ culture });
-		setTimeout(() => $editor.render(), 100);
+		templates = []; // await client.templates.findTemplates.query({ culture });
 	};
 
 	$: culture && setBlocks();

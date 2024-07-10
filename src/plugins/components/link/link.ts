@@ -53,12 +53,22 @@ export default (editor: Editor) => {
 						name: 'alt'
 					},
 					{
-						type: 'selectTarget',
-						label: 'Target',
+						type: 'select',
+						label: 'Deschidere Link',
+						options: [{
+							id: "_blank",
+							value: "_blank",
+							name: "Tab Nou",
+						},
+						{
+							id: "_self",
+							value: "_self",
+							name: "Tab current",
+						}],
 						name: 'target'
 					},
 					{
-						type: 'selectFriendlyUrl',
+						type: 'url',
 						label: 'Link',
 						name: 'href'
 					},

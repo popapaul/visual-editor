@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, setContext } from 'svelte';
-	import { NavigationDrawer } from '@paulpopa/svelte-material';
 	import 'grapesjs/dist/css/grapes.min.css';
 	import Toolbar from './panels/Toolbar.svelte';
 	import NavBar from './panels/NavBar.svelte';
@@ -12,20 +11,20 @@
 	import { writable } from 'svelte/store';
 	import { persisted } from 'svelte-persisted-store';
 	import type { Editor } from 'grapesjs';
-	//import Layers from './panels/Layers.svelte';
-	import Styles from './panels/Styles.svelte';
-	import Selectors from './panels/Selectors.svelte';
+
+	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
 	import { debounce } from '$utils/debounce';
 	import { browser } from '$app/environment';
-	const leftDrawer = persisted('leftDrawer', 0);
-	const rightDrawer = persisted('rightDrawer', 0);
+	import { Icon, Card } from '$packages/svelte-material/src/lib';
+	import { DragIndicator } from '@paulpopa/icons/md/outlined';
+	const panels = persisted('editor-panels', { left: '', right: '' });
 	const editor = writable<Editor>();
 
 	let GrapesRef: HTMLElement;
 	export let content: string = '';
 	export let culture: string = 'ro';
-	let innerUpdate = false;	
-	const setInnerUpdateFlag = (value:boolean)=>innerUpdate = value;
+	let innerUpdate = false;
+	const setInnerUpdateFlag = (value: boolean) => (innerUpdate = value);
 	const deboucedUpdateFlag = debounce(setInnerUpdateFlag, 700);
 
 	onMount(async () => {
@@ -42,7 +41,8 @@
 		}
 		$editor.runCommand('tailwind');
 		$editor.on('change:changesCount', deboucedUpdate);
-		$editor.on('component:selected', () => ($rightDrawer = 1));
+		$editor.on('component:selected', () => ($panels.right = 'styles'));
+		setTimeout(() => $editor.render(), 100);
 	});
 	setContext('editor', editor);
 
@@ -51,13 +51,13 @@
 		innerUpdate = true;
 
 		content = `<${css}>${$editor.getCss({ onlyMatched: true })}</${css}>${$editor.DomComponents.getWrapper().getInnerHTML()}`;
-		setTimeout(()=>deboucedUpdateFlag(false),150);
+		setTimeout(() => deboucedUpdateFlag(false), 150);
 	};
-	
+
 	const deboucedUpdate = debounce(updateContent, 700);
 
 	export const updateEditor = (content: string) => {
-		if(innerUpdate) return;
+		if (innerUpdate) return;
 		if (content?.includes('tailwind')) {
 			const template = document.createElement('template');
 			template.innerHTML = content;
@@ -67,56 +67,58 @@
 			content = template.innerHTML;
 		}
 		$editor.setComponents(content);
-	
 	};
 
 	$: $editor && updateEditor(content);
 </script>
 
-<div class="editor overflow-hidden">
-	<grapes-editor class="mb-5" style="grid-area:editor" bind:this={GrapesRef} />
-
+<div class="h-full w-full bg-slate-900 overflow-hidden">
 	{#if $editor}
 		<NavBar />
-		<NavigationDrawer
-			width={300}
-			style="grid-area:right;"
-			mini={!$rightDrawer}
-			miniWidth="0"
-			right
-			active={$rightDrawer > 0}
-		>
-
-			<div class="flex flex-col h-0" class:hidden={$rightDrawer != 1}>
-				
-				<Selectors />
-				<Traits />
-				<Styles />
-			
-			</div>
-			<div class="flex flex-col h-0" class:hidden={$rightDrawer != 2}>
-				<Blocks {culture} />
-			</div>
-		</NavigationDrawer>
 		<Images />
 		<Icons />
 		<Toolbar />
 		<RichTextEditor />
 	{/if}
+	<PaneGroup direction="horizontal">
+		<Pane defaultSize={20} minSize={10}>
+			<Card class="h-full">
+				<grapes-layers class="block" />
+			</Card>
+		</Pane>
+
+		<PaneResizer class="relative w-2 flex items-center justify-center z-10">
+			<Icon path={DragIndicator} class="h-6 w-4 rounded bg-green-600" />
+		</PaneResizer>
+
+		<Pane defaultSize={50} minSize={25}>
+			<Card class="h-full">
+				<grapes-editor class="w-full h-full" bind:this={GrapesRef} />
+			</Card>
+		</Pane>
+
+		<PaneResizer class="relative w-2 flex items-center justify-center z-10">
+			<Icon path={DragIndicator} class="h-6 w-4 rounded bg-green-600" />
+		</PaneResizer>
+		<Pane defaultSize={25} minSize={10}>
+			<div class:hidden={$panels.right != 'styles'}>
+				<grapes-selectors class="block" />
+				{#if $editor}
+					<Traits />
+				{/if}
+				<grapes-styles class="block" />
+			</div>
+
+			<div class:hidden={$panels.right != 'blocks'}>
+				{#if $editor}
+					<Blocks {culture} />
+				{/if}
+			</div>
+		</Pane>
+	</PaneGroup>
 </div>
 
 <style global>
-	.editor {
-		background: #3a3a3a;
-		height: 100%;
-		width: 100%;
-		display: grid;
-		grid-template-columns: auto 1fr auto;
-		grid-template-rows: auto 1fr;
-		grid-template-areas:
-			'toolbar toolbar toolbar'
-			'left editor right';
-	}
 	:global(.gjs-cv-canvas) {
 		height: 100%;
 		width: 100%;
@@ -135,5 +137,22 @@
 	:global(.gjs-block-label svg) {
 		width: 100%;
 		height: 100%;
+	}
+
+	:global(.theme--light .gjs-one-bg) {
+		background-color: transparent;
+	}
+	:global(.theme--light .gjs-two-color) {
+		color: black;
+	}
+	:global(.gjs-clm-sels-info) {
+		min-height: 19px;
+		margin-bottom: 0;
+	}
+	:global(.gjs-clm-tags #gjs-clm-tag-label) {
+		color: white;
+	}
+	:global(.theme--light .gjs-three-bg) {
+		background-color: #cf78c6;
 	}
 </style>
