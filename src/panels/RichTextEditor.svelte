@@ -181,14 +181,12 @@
 			.join('')}`;
 
 	const activeFont = () => {
-		console.log(rte.selection());
 		const node = rte.selection().baseNode.parentElement;
 		const size = parseFloat(getComputedStyle(node)['font-size']) * 0.0625 + 'rem';
 		return size;
 	};
 
 	const getStyles = () => {
-		console.log(rte.selection());
 		const node = rte.selection().baseNode.parentElement;
 		return getComputedStyle(node);
 	};
