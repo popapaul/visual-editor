@@ -12,7 +12,7 @@
 	import { persisted } from 'svelte-persisted-store';
 	import type { Editor } from 'grapesjs';
 
-	import { PaneGroup, Pane, PaneResizer } from 'paneforge';
+	import { PaneGroup, Pane, PaneResizer, type PaneAPI } from 'paneforge';
 	import { debounce } from '$utils/debounce';
 	import { browser } from '$app/environment';
 	import { Icon, Card } from '$packages/svelte-material/src/lib';
@@ -70,6 +70,10 @@
 	};
 
 	$: $editor && updateEditor(content);
+
+	let leftPane: PaneAPI, rightPane: PaneAPI;
+	$: $panels.right ? rightPane?.expand() : rightPane?.collapse();
+	$: $panels.left ? leftPane?.expand() : leftPane?.collapse();
 </script>
 
 <div class="h-full w-full bg-slate-900 overflow-hidden">
@@ -81,7 +85,14 @@
 		<RichTextEditor />
 	{/if}
 	<PaneGroup direction="horizontal">
-		<Pane defaultSize={20} minSize={10}>
+		<Pane
+			collapsible
+			bind:pane={leftPane}
+			onCollapse={() => ($panels.left = null)}
+			onExpand={() => ($panels.left = 'layers')}
+			defaultSize={20}
+			minSize={10}
+		>
 			<Card class="h-full">
 				<grapes-layers class="block" />
 			</Card>
@@ -100,7 +111,14 @@
 		<PaneResizer class="relative w-2 flex items-center justify-center z-10">
 			<Icon path={DragIndicator} class="h-6 w-4 rounded bg-green-600" />
 		</PaneResizer>
-		<Pane defaultSize={25} minSize={10}>
+		<Pane
+			collapsible
+			bind:pane={rightPane}
+			onCollapse={() => ($panels.right = null)}
+			onExpand={() => ($panels.right = 'blocks')}
+			defaultSize={25}
+			minSize={10}
+		>
 			<div class:hidden={$panels.right != 'styles'}>
 				<grapes-selectors class="block" />
 				{#if $editor}
