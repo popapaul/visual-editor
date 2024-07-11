@@ -90,7 +90,7 @@
 			bind:pane={leftPane}
 			onCollapse={() => ($panels.left = null)}
 			onExpand={() => ($panels.left = 'layers')}
-			defaultSize={20}
+			defaultSize={15}
 			minSize={10}
 		>
 			<Card class="h-full">
@@ -116,7 +116,7 @@
 			bind:pane={rightPane}
 			onCollapse={() => ($panels.right = null)}
 			onExpand={() => ($panels.right = 'blocks')}
-			defaultSize={25}
+			defaultSize={15}
 			minSize={10}
 		>
 			<div class:hidden={$panels.right != 'styles'}>
