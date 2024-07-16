@@ -15,7 +15,7 @@
 	import { PaneGroup, Pane, PaneResizer, type PaneAPI } from 'paneforge';
 	import { debounce } from '$utils/debounce';
 	import { browser } from '$app/environment';
-	import { Icon, Card } from '$packages/svelte-material/src/lib';
+	import { Icon, Card } from '@paulpopa/svelte-material';
 	import { DragIndicator } from '@paulpopa/icons/md/outlined';
 	const panels = persisted('editor-panels', { left: '', right: '' });
 	const editor = writable<Editor>();
