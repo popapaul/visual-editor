@@ -16,6 +16,7 @@
 	import FilePicker from '$client/cms/Inputs/FilePicker.svelte';
 	import SelectFriendlyUrl from '$client/cms/Inputs/SelectFriendlyUrl.svelte';
 	import type { Component, Editor, Trait } from 'grapesjs';
+	import { debounce } from '$utils/debounce';
 
 	const editor = getContext<Writable<Editor>>('editor');
 	function capitalize(string: string) {
@@ -50,6 +51,8 @@
 		if (index >= 0) components[index].attributes.attributes[name] = value;
 	};
 
+	const deboucedUpdate = debounce(handleChange, 250);
+
 	$editor.on('component:selected', onSelect);
 	$editor.on('component:deselected', () => (components = []));
 </script>
@@ -79,7 +82,7 @@
 								{hint}
 								type="number"
 								{value}
-								on:input={(event) => handleChange(name, event.target.value, component)}
+								on:input={(event) => deboucedUpdate(name, event.target.value, component)}
 							>
 								{capitalize(label || name)}</TextField
 							>
@@ -100,7 +103,7 @@
 							<TextField
 								{hint}
 								{value}
-								on:change={(event) => handleChange(name, event.target.value, component)}
+								on:input={(event) => deboucedUpdate(name, event.target.value, component)}
 							>
 								{capitalize(label || name)}</TextField
 							>
@@ -110,7 +113,7 @@
 							<Textarea
 								{hint}
 								{value}
-								on:change={(event) => handleChange(name, event.target.value, component)}
+								on:input={(event) => deboucedUpdate(name, event.target.value, component)}
 							>
 								{capitalize(label || name)}</Textarea
 							>
@@ -121,7 +124,7 @@
 								<TextField
 									{hint}
 									{value}
-									on:input={(event) => handleChange(name, event.target.value, component)}
+									on:input={(event) => deboucedUpdate(name, event.target.value, component)}
 								>
 									{capitalize(label || name)}</TextField
 								>

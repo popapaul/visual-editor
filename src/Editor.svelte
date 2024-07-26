@@ -41,6 +41,7 @@
 		}
 		$editor.runCommand('tailwind');
 		$editor.on('change:changesCount', deboucedUpdate);
+		$editor.on('component:update', deboucedUpdate);
 		$editor.on('component:selected', () => ($panels.right = 'styles'));
 		setTimeout(() => $editor.render(), 100);
 	});
@@ -76,7 +77,7 @@
 	$: $panels.left ? leftPane?.expand() : leftPane?.collapse();
 </script>
 
-<div class="h-full w-full bg-slate-900 overflow-hidden">
+<div class="h-full w-full bg-slate-900 overflow-hidden" on:mouseleave={deboucedUpdate}>
 	{#if $editor}
 		<NavBar />
 		<Images />
