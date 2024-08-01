@@ -5,7 +5,7 @@ function CleanWordHTML(str: string) {
 
 	const doc = parser.parseFromString(str, "text/html");
 	const body = doc.querySelector("body");
-	
+
 	body.querySelectorAll("*").forEach((element: HTMLElement) => {
 		element.className = "";
 		element.removeAttribute("lang");
@@ -45,7 +45,7 @@ function CleanWordHTML(str: string) {
 
 	return result;
 }
-export default (editor: Editor) => {
+export const text = (editor: Editor) => {
 
 	editor.DomComponents.addType('text', {
 		// Model definition
@@ -60,7 +60,24 @@ export default (editor: Editor) => {
 					dblclick: 'onActive',
 					input: 'onInput',
 					paste: 'onPaste',
+					mouseleave: 'onLeave'
 				};
+			},
+			async onLeave() {
+				const { model, em } = this;
+				console.log(this)
+				//model.trigger('sync:content', { noCount: true });
+				//const content = await this.getContent();
+				//this.syncContent();
+				//	this.model.components(content);
+				//console.log(content)
+				//this.em.set({ content })
+				//const comps = model.components(content);
+				//	this.content = content;
+				//model.content = content;
+				//model.set('content', content);
+				//comps.resetFromString(content, { fromDisable: true });
+
 			},
 
 			onPaste: (e: ClipboardEvent) => {

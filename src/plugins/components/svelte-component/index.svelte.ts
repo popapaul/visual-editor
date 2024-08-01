@@ -1,35 +1,49 @@
 import type { Editor } from 'grapesjs';
 import { components } from '../../../components';
-import { detach, insert, noop } from 'svelte/internal';
+import { mount } from 'svelte';
+import { createRawSnippet } from 'svelte';
+// import { detach, insert } from 'svelte/internal';
 
-function createSlots(slots) {
-    const svelteSlots = {};
+// function createSlots(slots) {
+//     const svelteSlots = {};
 
-    for (const slotName in slots) {
-        svelteSlots[slotName] = [createSlotFn(slots[slotName])];
-    }
+//     for (const slotName in slots) {
+//         svelteSlots[slotName] = [createSlotFn(slots[slotName])];
+//     }
 
-    function createSlotFn(element) {
-        return function () {
-            return {
-                c: noop,
+//     function createSlotFn(element) {
+//         return function () {
+//             return {
+//                 c: () => { },
 
-                m: function mount(target, anchor) {
-                    insert(target, element, anchor);
-                },
+//                 m: function mount(target, anchor) {
+//                     insert(target, element, anchor);
+//                 },
 
-                d: function destroy(detaching) {
-                    if (detaching) {
-                        detach(element);
-                    }
-                },
+//                 d: function destroy(detaching) {
+//                     if (detaching) {
+//                         detach(element);
+//                     }
+//                 },
 
-                l: noop,
-            };
+//                 l: () => { },
+//             };
+//         }
+//     }
+//     return svelteSlots;
+// }
+
+const getSnippet = (element: Element) => createRawSnippet(() => {
+    return {
+        render: () => `<div style="display:contents;"></div>`,
+        setup: (node) => {
+            console.log(node)
+            $effect(() => {
+                node.replaceWith(element);
+            });
         }
-    }
-    return svelteSlots;
-}
+    };
+});
 
 export const svelteComponents = (editor: Editor) => {
     Array.from(components.entries()).map(([tagName, component]) => {
@@ -58,18 +72,18 @@ export const svelteComponents = (editor: Editor) => {
                     const children = model.components();
 
                     if (children?.length) {
-                        props.$$slots = createSlots({ default: children.map(x => x.view.el)[0] })
+                        props.children = getSnippet(children.map(x => x.view.el)[0]);
                         props.$$scope = {}
-                        console.log(tagName, children.map(x => x.view.el))
                     }
 
                     if (component.loader) {
                         const data = await component.loader({ fetch, culture: "ro", attributes: props });
-
                         props = { ...props, ...data }
-
                     }
-                    new Component({ target: el, props })
+                    mount(Component, {
+                        target: el,
+                        props
+                    });
                 },
             }
         });

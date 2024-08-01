@@ -15,7 +15,7 @@
 	import { PaneGroup, Pane, PaneResizer, type PaneAPI } from 'paneforge';
 	import { debounce } from '$utils/debounce';
 	import { browser } from '$app/environment';
-	import { Icon, Card } from '@paulpopa/svelte-material';
+	import { Icon, Card, clickOutside } from '@paulpopa/svelte-material';
 	import { DragIndicator } from '@paulpopa/icons/md/outlined';
 	const panels = persisted('editor-panels', { left: '', right: '' });
 	const editor = writable<Editor>();
@@ -25,7 +25,7 @@
 	export let culture: string = 'ro';
 	let innerUpdate = false;
 	const setInnerUpdateFlag = (value: boolean) => (innerUpdate = value);
-	const deboucedUpdateFlag = debounce(setInnerUpdateFlag, 700);
+	const deboucedUpdateFlag = debounce(setInnerUpdateFlag, 150);
 
 	onMount(async () => {
 		if (browser) {
@@ -52,10 +52,11 @@
 		innerUpdate = true;
 
 		content = `<${css}>${$editor.getCss({ onlyMatched: true })}</${css}>${$editor.DomComponents.getWrapper().getInnerHTML()}`;
+		console.log(content)
 		setTimeout(() => deboucedUpdateFlag(false), 150);
 	};
 
-	const deboucedUpdate = debounce(updateContent, 700);
+	const deboucedUpdate = debounce(updateContent, 150);
 
 	export const updateEditor = (content: string) => {
 		if (innerUpdate) return;
@@ -75,9 +76,22 @@
 	let leftPane: PaneAPI, rightPane: PaneAPI;
 	$: $panels.right ? rightPane?.expand() : rightPane?.collapse();
 	$: $panels.left ? leftPane?.expand() : leftPane?.collapse();
+
+	const handleLeave = ()=>{
+		const textCmp = $editor.getEditing(); // Returns the Component enabled in rich text editing mode
+		if(textCmp)
+		{
+			textCmp.trigger('sync:content', { noCount: true });
+			textCmp.view.el.contentEditable= "false";
+			$editor.select();
+		}
+	
+		updateContent();
+	}
 </script>
 
-<div class="h-full w-full bg-slate-900 overflow-hidden" on:mouseleave={deboucedUpdate}>
+<!-- svelte-ignore a11y_no_static_element_interactions -->
+<div use:clickOutside class="h-full w-full bg-slate-900 overflow-hidden" on:mouseleave={deboucedUpdate} on:clickOutside={handleLeave}>
 	{#if $editor}
 		<NavBar />
 		<Images />

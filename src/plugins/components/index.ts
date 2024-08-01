@@ -9,4 +9,4 @@ export * from './flexbox';
 export * from './gallery';
 export * from './list';
 export * from './form';
-export * from './svelte-component';
+export * from './svelte-component/index.svelte';
