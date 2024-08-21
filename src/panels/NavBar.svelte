@@ -58,12 +58,12 @@
 			</Tooltip>
 		</ButtonGroupItem>
 	</ButtonGroup>
-	<div class="mr-20" />
 
-	<ButtonGroup mandatory borderless activeClass="primary-color" value="desktop">
+	<div  class="mx-auto">
+	<ButtonGroup mandatory borderless value="desktop">
 		{#each devices as { id, icon, widthMedia }}
 			<Tooltip>
-				<ButtonGroupItem value="laptop" on:click={() => $editor.setDevice(id)}>
+				<ButtonGroupItem activeClass="primary-color"  value={id} on:click={() => $editor.setDevice(id)}>
 					<Icon path={icon} />
 				</ButtonGroupItem>
 
@@ -75,8 +75,7 @@
 			</Tooltip>
 		{/each}
 	</ButtonGroup>
-
-	<div style="flex-grow:1" />
+</div>
 
 	<PageCode>
 		<Tooltip>
@@ -87,9 +86,7 @@
 		</Tooltip>
 	</PageCode>
 
-	<div style="flex-grow:1" />
-
-	<div class="flex gap-2">
+	<div class="flex gap-2 mx-auto">
 		<Tooltip>
 			<Button
 				fab
@@ -119,7 +116,7 @@
 			<span slot="tip">Fullscreen</span>
 		</Tooltip>
 	</div>
-	<div style="flex-grow:1" />
+
 
 	<ButtonGroup borderless activeClass="primary-color" bind:value={$panels.right}>
 		<Tooltip>

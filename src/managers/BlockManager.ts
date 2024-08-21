@@ -1,4 +1,3 @@
-import { Paragraph } from "@paulpopa/icons/fa/solid";
 import { Image, Title } from "@paulpopa/icons/md/outlined";
 
 const blocks = [

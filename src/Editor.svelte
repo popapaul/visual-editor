@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { onMount, setContext } from 'svelte';
+	import { onMount, setContext, untrack } from 'svelte';
 	import 'grapesjs/dist/css/grapes.min.css';
 	import Toolbar from './panels/Toolbar.svelte';
 	import NavBar from './panels/NavBar.svelte';
@@ -21,8 +21,23 @@
 	const editor = writable<Editor>();
 
 	let GrapesRef: HTMLElement;
-	export let content: string = '';
-	export let culture: string = 'ro';
+
+	let {content=$bindable(),culture,onChange} : {content:string,culture:string; onChange?:(content:string)=>void} = $props();
+
+	let value = $state<string>();
+
+	
+	$effect(()=> { 
+		content; 
+		if(!$editor) return;
+		
+		untrack(()=> {
+			if(value == content) return;
+			updateEditor(content);
+			value = content
+		})}
+	);
+
 	let innerUpdate = false;
 	const setInnerUpdateFlag = (value: boolean) => (innerUpdate = value);
 	const deboucedUpdateFlag = debounce(setInnerUpdateFlag, 150);
@@ -40,8 +55,8 @@
 			} as any) as unknown as Editor;
 		}
 		$editor.runCommand('tailwind');
-		$editor.on('change:changesCount', deboucedUpdate);
-		$editor.on('component:update', deboucedUpdate);
+		$editor.on('change:changesCount', updateContent);
+		$editor.on('component:update', updateContent);
 		$editor.on('component:selected', () => ($panels.right = 'styles'));
 		setTimeout(() => $editor.render(), 100);
 	});
@@ -49,17 +64,15 @@
 
 	const updateContent = () => {
 		const css = 'style';
-		innerUpdate = true;
-
-		content = `<${css}>${$editor.getCss({ onlyMatched: true })}</${css}>${$editor.DomComponents.getWrapper().getInnerHTML()}`;
-		console.log(content)
-		setTimeout(() => deboucedUpdateFlag(false), 150);
+		value = `<${css}>${$editor.getCss({ onlyMatched: true })}</${css}>${$editor.DomComponents.getWrapper().getInnerHTML()}`
+		if(value == content) return;
+		content = value;
+		onChange?.(content);
 	};
 
 	const deboucedUpdate = debounce(updateContent, 150);
 
 	export const updateEditor = (content: string) => {
-		if (innerUpdate) return;
 		if (content?.includes('tailwind')) {
 			const template = document.createElement('template');
 			template.innerHTML = content;
@@ -70,28 +83,17 @@
 		}
 		$editor.setComponents(content);
 	};
-
-	$: $editor && updateEditor(content);
-
-	let leftPane: PaneAPI, rightPane: PaneAPI;
-	$: $panels.right ? rightPane?.expand() : rightPane?.collapse();
-	$: $panels.left ? leftPane?.expand() : leftPane?.collapse();
-
-	const handleLeave = ()=>{
-		const textCmp = $editor.getEditing(); // Returns the Component enabled in rich text editing mode
-		if(textCmp)
-		{
-			textCmp.trigger('sync:content', { noCount: true });
-			textCmp.view.el.contentEditable= "false";
-			$editor.select();
-		}
 	
-		updateContent();
-	}
+
+
+	let leftPane = $state<PaneAPI>();
+	let rightPane = $state<PaneAPI>();
+	$effect(()=>$panels.right ? rightPane?.expand() : rightPane?.collapse())
+	$effect(()=>$panels.left ? leftPane?.expand() : leftPane?.collapse())
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div use:clickOutside class="h-full w-full bg-slate-900 overflow-hidden" on:mouseleave={deboucedUpdate} on:clickOutside={handleLeave}>
+<div class="h-full w-full bg-slate-900 overflow-hidden" on:mouseleave={deboucedUpdate}>
 	{#if $editor}
 		<NavBar />
 		<Images />
@@ -109,7 +111,7 @@
 			minSize={10}
 		>
 			<Card class="h-full">
-				<grapes-layers class="block" />
+				<grapes-layers class="block" ></grapes-layers>
 			</Card>
 		</Pane>
 
@@ -119,7 +121,7 @@
 
 		<Pane defaultSize={50} minSize={25}>
 			<Card class="h-full">
-				<grapes-editor class="w-full h-full" bind:this={GrapesRef} />
+				<grapes-editor class="w-full h-full" bind:this={GrapesRef} ></grapes-editor>
 			</Card>
 		</Pane>
 
@@ -135,11 +137,11 @@
 			minSize={10}
 		>
 			<div class:hidden={$panels.right != 'styles'}>
-				<grapes-selectors class="block" />
+				<grapes-selectors class="block"></grapes-selectors>
 				{#if $editor}
 					<Traits />
 				{/if}
-				<grapes-styles class="block" />
+				<grapes-styles class="block"></grapes-styles>
 			</div>
 
 			<div class:hidden={$panels.right != 'blocks'}>

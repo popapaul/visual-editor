@@ -1,4 +1,4 @@
-import type { Editor } from "grapesjs";
+import type { Component, Editor } from "grapesjs";
 function CleanWordHTML(str: string) {
 
 	const parser = new DOMParser();
@@ -22,7 +22,7 @@ function CleanWordHTML(str: string) {
 			element.classList.add(`text-[${style.color.replaceAll(" ", "")}]`);
 		if (style.textIndent && style.textIndent != "0px")
 			element.classList.add(`indent-[${style.textIndent.replace("-", "")}]`)
-		element.style = null;
+		//element.style = null;
 		if (element.tagName == "OL")
 			element.classList.add("list-decimal", "pl-4")
 		if (element.tagName == "UL")
@@ -45,6 +45,22 @@ function CleanWordHTML(str: string) {
 
 	return result;
 }
+function saveCursorPosition(window: Window) {
+	let selection = window.getSelection();
+	if (selection.rangeCount > 0) {
+		return selection.getRangeAt(0);
+	}
+	return null;
+}
+
+function restoreCursorPosition(window: Window, savedRange) {
+	if (savedRange) {
+		let selection = window.getSelection();
+		selection.removeAllRanges();
+		selection.addRange(savedRange);
+	}
+}
+
 export const text = (editor: Editor) => {
 
 	editor.DomComponents.addType('text', {
@@ -55,28 +71,36 @@ export const text = (editor: Editor) => {
 			if (el.nodeType === 3 || el.tagName == "P") return true;
 		},
 		view: {
+
+
+
 			events() {
 				return {
 					dblclick: 'onActive',
-					input: 'onInput',
+					blur: 'onBlur',
 					paste: 'onPaste',
-					mouseleave: 'onLeave'
+					//mouseleave: 'onLeave'
 				};
 			},
-			async onLeave() {
-				const { model, em } = this;
-				console.log(this)
-				//model.trigger('sync:content', { noCount: true });
-				//const content = await this.getContent();
-				//this.syncContent();
-				//	this.model.components(content);
-				//console.log(content)
+			async onBlur() {
+				const { model, em }: { model: Component, em: any } = this;
+				//console.log(this)
+				//const window = editor.Canvas.getWindow()
+				//const range = saveCursorPosition(window);
+
+				//	model.trigger('sync:content', { noCount: true });
+				await this.syncContent();
+				//this.model.components(content);
+				//	console.log(content)
 				//this.em.set({ content })
 				//const comps = model.components(content);
-				//	this.content = content;
-				//model.content = content;
+				//this.content = content;
+
 				//model.set('content', content);
-				//comps.resetFromString(content, { fromDisable: true });
+				//console.log(range)
+				//restoreCursorPosition(window, range)
+
+
 
 			},
 

@@ -1,4 +1,4 @@
-import type { ComponentType } from "svelte";
+import type { Component as SvelteComponent } from "svelte";
 import type { ComponentDefinition } from "grapesjs";
 
 type Loader = (event: { event?: any, fetch?: typeof window.fetch, culture: string, attributes: Record<string, string> }) => Promise<Record<string, any>>
@@ -9,7 +9,7 @@ type Component = {
     category?: string;
     loader?: Loader,
     definition?: ComponentDefinition,
-    component: () => Promise<ComponentType>,
+    component: () => Promise<SvelteComponent>,
 }
 
 export const components = new Map<string, Component>();
