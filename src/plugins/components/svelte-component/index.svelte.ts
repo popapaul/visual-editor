@@ -37,7 +37,7 @@ const getSnippet = (element: Element) => createRawSnippet(() => {
     return {
         render: () => `<div style="display:contents;"></div>`,
         setup: (node) => {
-            console.log(node)
+
             $effect(() => {
                 node.replaceWith(element);
             });
