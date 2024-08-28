@@ -1,5 +1,3 @@
-
-import type { ComponentType } from "svelte";
 import parser from "./parser";
 import stringify from "./parser/stringify";
 import type { IDoc, IOptions } from "./parser/types";
