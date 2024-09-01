@@ -1,7 +1,6 @@
 import parser from "./parser";
 import stringify from "./parser/stringify";
 import type { IDoc, IOptions } from "./parser/types";
-import { components } from "../../components";
 
 export const isTag = (node: IDoc) => {
 	return node.type == "tag"
@@ -65,16 +64,34 @@ export const parse = async (html: string, options?: Options) => {
 	options = { ...defaultOptions, ...options };
 	const { components, nodes } = transform(ast, options);
 
+
+	const resolvedComponents: Record<string, Component> = {};
+
+	const promises = Object.entries(components).map(async ([key, component]) => {
+		resolvedComponents[key] = {
+			component: component.component,
+			props: await component.props,
+		};
+	});
+
+	// Wait for all promises to resolve concurrently
+	await Promise.all(promises);
+
 	return {
 		nodes,
-		components: await Promise.all(components.map(async ({ component, props }) => ({ component, props: await props }))),
+		components: resolvedComponents
 	};
 };
-
 export type Component = {
+	component: string,
+	props: Record<string, any>
+}
+
+export type ComponentPromise = {
 	component: string,
 	props: Promise<Record<string, any>>
 }
+
 
 
 
@@ -82,7 +99,7 @@ const transform = (domNodes: IDoc[], options: Options
 ) => {
 
 	const nodes: IDoc[] = [];
-	const components: Component[] = [];
+	const components: Record<string, ComponentPromise> = {};
 
 	for (const domNode of domNodes) {
 		let processResult: ReturnType<ProcessNode> = undefined;
@@ -101,15 +118,18 @@ const transform = (domNodes: IDoc[], options: Options
 		}
 
 		if (typeof processResult == "object" && processResult.component) {
-			components.push({ component: processResult.component, props: processResult.props });
+			const id = domNode.attrs?.id ?? crypto.randomUUID();
+			components[id] = { component: processResult.component, props: processResult.props }
 
 			const node: IDoc = ({
 				type: 'component',
 				component: processResult.component,
+				attrs: {
+					...domNode.attrs,
+					...processResult.attrs,
+					id
+				}
 			});
-
-			if (domNode.attrs) node.attrs = { ...domNode.attrs, ...processResult.attrs };
-
 
 			if (
 				!processResult.noChildren &&
@@ -182,7 +202,7 @@ const transform = (domNodes: IDoc[], options: Options
 const transformAndAddChildren = (
 	node: IDoc,
 	domNode: IDoc,
-	components: Component[],
+	components: Record<string, ComponentPromise>,
 	options: Options,
 ) => {
 	const { nodes: childNodes, components: childComponents } = transform(
@@ -192,11 +212,9 @@ const transformAndAddChildren = (
 
 	if (childNodes.length) {
 		node.children = childNodes;
-		for (const component of childComponents) {
-			components.push(component);
-		}
+		Object.assign(components, childComponents);
 
-		return !!childComponents.length;
+		return !!Object.keys(childComponents).length;
 	}
 };
 
