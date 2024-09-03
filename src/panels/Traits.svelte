@@ -13,7 +13,7 @@
 	import { LL } from '$i18n';
 	import { getContext } from 'svelte';
 	import type { Writable } from 'svelte/store';
-	import FilePicker from '$modules/core/components/Inputs/FilePicker.svelte';
+	import FilePicker from '$modules/core/components/Inputs/Media/FilePicker.svelte';
 	import SelectFriendlyUrl from '$modules/core/components/Inputs/SelectFriendlyUrl.svelte';
 	import type { Component, Editor, Trait } from 'grapesjs';
 	import { debounce } from '$utils/debounce';
@@ -65,7 +65,7 @@
 		{#each categories as category, index}
 			<ExpansionPanel active value={index}>
 				<span slot="header">{capitalize(category || component.attributes?.type || 'Options')}</span>
-				<div class="mt-2 w-full">
+				<div class="mt-2 flex flex-col w-full">
 					{#each traits.filter((trait) => trait.attributes?.attributes?.category == category) as trait}
 						{@const {
 							name,
@@ -90,7 +90,7 @@
 
 						{#if type == 'checkbox' || type == 'boolean'}
 							<Checkbox
-								class="mt-3"
+								class=""
 								checked={Boolean(value)}
 								on:change={(event) =>
 									handleChange(name, event.target.checked ? 'true' : false, component)}

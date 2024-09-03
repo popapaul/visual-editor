@@ -3,7 +3,7 @@ const GeneralSelector = {
 	open: false,
 	buildProps: ['float', 'display', 'position', 'top', 'right', 'left', 'bottom']
 };
-const ImageSelector = {
+const ImagePicker = {
 	name: 'Image',
 	open: false,
 	buildProps: ['object-fit', 'object-position'],
@@ -122,7 +122,7 @@ const styleManager = {
 
 	sectors: [
 		GeneralSelector,
-		ImageSelector,
+		ImagePicker,
 		FlexSelector,
 		DimensionSelectors,
 		TypographySelectors,

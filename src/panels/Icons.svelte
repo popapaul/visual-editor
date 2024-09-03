@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import IconPicker from '$modules/core/components/Inputs/IconPicker.svelte';
+	import IconPicker from '$modules/core/components/Inputs/Media/IconPicker.svelte';
 	import type { Writable } from 'svelte/store';
 	import type { Component, Editor } from 'grapesjs';
 	let active = false;

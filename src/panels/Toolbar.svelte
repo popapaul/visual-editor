@@ -93,7 +93,7 @@
           </Tooltip> -->
 
 			{#if selected.get('draggable')}
-				<Menu hover>
+				<Menu>
 					<div slot="activator">
 						<Button
 							depressed

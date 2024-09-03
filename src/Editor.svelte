@@ -93,7 +93,7 @@
 </script>
 
 <!-- svelte-ignore a11y_no_static_element_interactions -->
-<div class="h-full w-full bg-slate-900 overflow-hidden" on:mouseleave={deboucedUpdate}>
+<div class="flex flex-col h-full w-full bg-slate-900 overflow-hidden" on:mouseleave={deboucedUpdate}>
 	{#if $editor}
 		<NavBar />
 		<Images />
@@ -101,7 +101,7 @@
 		<Toolbar />
 		<RichTextEditor />
 	{/if}
-	<PaneGroup direction="horizontal">
+	<PaneGroup direction="horizontal" class='h-0 grow'>
 		<Pane
 			collapsible
 			bind:pane={leftPane}
@@ -135,6 +135,7 @@
 			onExpand={() => ($panels.right = 'blocks')}
 			defaultSize={15}
 			minSize={10}
+			class="!overflow-auto max-h-full"
 		>
 			<div class:hidden={$panels.right != 'styles'}>
 				<grapes-selectors class="block"></grapes-selectors>

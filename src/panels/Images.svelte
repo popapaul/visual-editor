@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import FilePicker from '$modules/core/components/Inputs/FilePicker.svelte';
+	import FilePicker from '$modules/core/components/Inputs/Media/FilePicker.svelte';
 	import type { Writable } from 'svelte/store';
 	import type { Component, Editor } from 'grapesjs';
 
@@ -21,16 +21,16 @@
 		active = true;
 	});
 
-	const changeImage = ({ detail }) => {
+	const changeImage = (value) => {
 		const { attribute, style } = options;
-		if (attribute) selectedImage.addAttributes({ [attribute]: detail });
+		if (attribute) selectedImage.addAttributes({ [attribute]: value });
 		if (style)
 			selectedImage.setStyle({
-				background: `url(${detail}); background-repeat:no-repeat; background-size:cover;`
+				background: `url(${value}); background-repeat:no-repeat; background-size:cover;`
 			});
 	};
 </script>
 
 {#if type}
-	<FilePicker path={[type]} bind:active on:change={changeImage} />
+	<FilePicker path={[type]} bind:active onChange={changeImage} />
 {/if}
