@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import FilePicker from '$modules/core/components/Inputs/Media/FilePicker.svelte';
+	import { FilePicker } from '$modules/core/components';
 	import type { Writable } from 'svelte/store';
 	import type { Component, Editor } from 'grapesjs';
 

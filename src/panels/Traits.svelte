@@ -13,7 +13,8 @@
 	import { LL } from '$i18n';
 	import { getContext } from 'svelte';
 	import type { Writable } from 'svelte/store';
-	import FilePicker from '$modules/core/components/Inputs/Media/FilePicker.svelte';
+	import {FilePicker} from '$modules/core/components';
+
 	import SelectFriendlyUrl from '$modules/core/components/Inputs/SelectFriendlyUrl.svelte';
 	import type { Component, Editor, Trait } from 'grapesjs';
 	import { debounce } from '$utils/debounce';

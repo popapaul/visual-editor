@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { getContext } from 'svelte';
-	import IconPicker from '$modules/core/components/Inputs/Media/IconPicker.svelte';
+	import { IconPicker } from '$modules/core/components';
 	import type { Writable } from 'svelte/store';
 	import type { Component, Editor } from 'grapesjs';
 	let active = false;
@@ -8,16 +8,13 @@
 	const editor = getContext<Writable<Editor>>('editor');
 
 	$editor.Commands.add('open-icons', () => {
-	
 		selectedIcon = $editor.getSelected();
-	
+
 		active = true;
 	});
 
 	const changeIcon = (event) => {
-		
 		if (selectedIcon.is('svg')) {
-
 			const attributes = selectedIcon.attributes.attributes;
 
 			const cssClass = selectedIcon.getClasses();
@@ -39,8 +36,4 @@
 	};
 </script>
 
-
 <IconPicker on:change={changeIcon} bind:active><span></span></IconPicker>
-
-	
-
