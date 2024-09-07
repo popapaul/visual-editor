@@ -47,11 +47,7 @@ export default (editor: Editor) => {
 						label: 'Id',
 						name: 'id'
 					},
-					{
-						type: 'text',
-						label: 'Title',
-						name: 'alt'
-					},
+
 					{
 						type: 'select',
 						label: 'Deschidere Link',
@@ -76,7 +72,7 @@ export default (editor: Editor) => {
 						type: 'text',
 						label: 'Download',
 						name: 'download',
-						text: 'UsedWhenLinkPointsToFile'
+						text: 'Name of the file'
 					}
 				]
 			}

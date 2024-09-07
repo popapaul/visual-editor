@@ -1,4 +1,1 @@
-import link from './link';
-export default (editor) => {
-	link(editor);
-};
+export {default as link} from './link';

@@ -43,6 +43,7 @@
 	};
 
 	const handleChange = (name: string, value: any, component: Component) => {
+		console.log(value)
 		if (!component) return;
 
 		if (value === false) component.removeAttributes([name]);
@@ -104,6 +105,7 @@
 							<TextField
 								{hint}
 								{value}
+								clearable
 								on:input={(event) => deboucedUpdate(name, event.target.value, component)}
 							>
 								{capitalize(label || name)}</TextField
@@ -125,6 +127,7 @@
 								<TextField
 									{hint}
 									{value}
+									clearable
 									on:input={(event) => deboucedUpdate(name, event.target.value, component)}
 								>
 									{capitalize(label || name)}</TextField
@@ -132,7 +135,12 @@
 								<FilePicker
 									accept={metadata.accept}
 									path={metadata?.path ?? ['images']}
-									on:change={({ detail }) => handleChange(name, detail, component)}
+									onChange={(file) =>{
+										handleChange("href", file, component);
+										handleChange("download", file.split("/").pop(), component);
+										if(name.toLowerCase()!="download")
+											handleChange(name, file, component);
+									}}
 								>
 									<Button size="x-small" fab depressed slot="activator">
 										<Icon class="!w-5 !h-5" path={Image} />
@@ -144,23 +152,16 @@
 						{#if type == 'select'}
 							<Select
 								{hint}
+								clearable
 								value={component.attributes.attributes[name] ?? trait.attributes.default}
 								on:change={({ detail }) => handleChange(name, detail, component)}
+								on:clear={() => handleChange(name, "", component)}
 								items={options.map((x) => ({
 									name: (x?.label ?? x?.name ?? x?.value ?? x) || 'Not set',
 									value: x?.value ?? x
 								}))}
 								>{capitalize(label || name)}
-								<Button
-									depressed
-									fab
-									class="!bg-transparent"
-									size="x-small"
-									slot="append-outer"
-									on:click={() => handleChange(name, '', component)}
-								>
-									<Icon path={Close} />
-								</Button>
+							
 							</Select>
 						{/if}
 
