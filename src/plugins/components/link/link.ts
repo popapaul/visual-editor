@@ -69,7 +69,7 @@ export default (editor: Editor) => {
 						name: 'href'
 					},
 					{
-						type: 'text',
+						type: 'download',
 						label: 'Download',
 						name: 'download',
 						text: 'Name of the file'
