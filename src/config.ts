@@ -29,6 +29,8 @@ const config: EditorConfig = {
     }
 	body{
 		padding-bottom:20px;
+			padding:0;
+		margin:0;
 	}
 		[data-gjs-type="wrapper"] *:empty{
 		min-height:50px;
@@ -43,6 +45,7 @@ const config: EditorConfig = {
 	.media{
 		display:block;
 	}
+	
     .empty-img{
       background: #f5f5f5;
       border: none;

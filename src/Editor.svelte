@@ -55,9 +55,9 @@
 			} as any) as unknown as Editor;
 		}
 		$editor.runCommand('tailwind');
-		$editor.on('change:changesCount', updateContent);
-		$editor.on('component:update', updateContent);
-		$editor.on('component:selected', () => ($panels.right = 'styles'));
+		//$editor.on('change:changesCount', updateContent);
+		//$editor.on('component:update', updateContent);
+		//$editor.on('component:selected', () => ($panels.right = 'styles'));
 		setTimeout(() => $editor.render(), 100);
 	});
 	setContext('editor', editor);
@@ -92,6 +92,7 @@
 	$effect(()=>$panels.left ? leftPane?.expand() : leftPane?.collapse())
 </script>
 
+
 <!-- svelte-ignore a11y_no_static_element_interactions -->
 <div class="flex flex-col h-full w-full bg-slate-900 overflow-hidden" on:mouseleave={deboucedUpdate}>
 	{#if $editor}
@@ -99,7 +100,7 @@
 		<Images />
 		<Icons />
 		<Toolbar />
-		<RichTextEditor />
+		<!-- <RichTextEditor /> -->
 	{/if}
 	<PaneGroup direction="horizontal" class='h-0 grow'>
 		<Pane
