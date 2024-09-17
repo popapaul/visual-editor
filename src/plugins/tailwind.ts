@@ -9,7 +9,7 @@ export default (editor) => {
 		plugins: [],
 		config: {
 			corePlugins: {
-				preflight: true
+				preflight: false
 			},
 			theme: tailwindConfig.theme
 		}

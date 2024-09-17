@@ -60,6 +60,28 @@ function restoreCursorPosition(window: Window, savedRange) {
 		selection.addRange(savedRange);
 	}
 }
+function isTextOnly(element) {
+	// Get all child nodes of the element
+	const childNodes = element.childNodes;
+
+	// Loop through all child nodes
+	for (let i = 0; i < childNodes.length; i++) {
+		const node = childNodes[i];
+
+		// Check if it's an element node (not a text node)
+		if (node.nodeType !== Node.TEXT_NODE) {
+			return false;
+		}
+
+		// Optional: Check if text node contains only whitespace
+		if (node.nodeType === Node.TEXT_NODE && !/\S/.test(node.nodeValue)) {
+			continue; // Skip over text nodes that are just whitespace
+		}
+	}
+
+	// If all child nodes are text nodes or whitespace, return true
+	return true;
+}
 
 export const text = (editor: Editor) => {
 
@@ -68,7 +90,7 @@ export const text = (editor: Editor) => {
 		extend: 'text',
 		extendView: 'text',
 		isComponent: (el) => {
-			if (el.nodeType === 3 || el.tagName == "P") return true;
+			if (el.nodeType === 3 || el.tagName == "P" || isTextOnly(el)) return true;
 		},
 		view: {
 
@@ -78,7 +100,7 @@ export const text = (editor: Editor) => {
 				return {
 					dblclick: 'onActive',
 					blur: 'onBlur',
-					paste: 'onPaste',
+					//paste: 'onPaste',
 					//mouseleave: 'onLeave'
 				};
 			},

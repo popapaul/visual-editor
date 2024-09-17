@@ -7,7 +7,7 @@ const blocks = [
 		media: Title,
 		category: 'Basic',
 		activate: true,
-		content: `<p class="px-2"> </p>`,
+		content: `<p class="px-2"></p>`,
 	},
 	{
 		id: 'image',
