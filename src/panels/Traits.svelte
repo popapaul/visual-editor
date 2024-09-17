@@ -158,7 +158,7 @@
 								on:clear={() => handleChange(name, "", component)}
 								items={options.map((x) => ({
 									name: (x?.label ?? x?.name ?? x?.value ?? x) || 'Not set',
-									value: x?.value ?? x
+									value: x?.id ?? x
 								}))}
 								>{capitalize(label || name)}
 							
